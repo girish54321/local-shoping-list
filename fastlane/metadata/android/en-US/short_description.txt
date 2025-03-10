@@ -1,0 +1,1 @@
+Simple shopping list app. Never forget an item!
