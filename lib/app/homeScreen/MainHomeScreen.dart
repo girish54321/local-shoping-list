@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/instance_manager.dart';
 import 'package:get/state_manager.dart';
+import 'package:get/instance_manager.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 import 'package:local_app/app/ShopingList/ShopingList.dart';

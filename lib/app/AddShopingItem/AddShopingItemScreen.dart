@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/state_manager.dart';
-import 'package:local_app/app/AddItems/AddItemsScreen.dart';
-import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
 import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/helper.dart';
+import 'package:local_app/app/AddItems/AddItemsScreen.dart';
+import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 

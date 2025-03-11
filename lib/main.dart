@@ -3,7 +3,7 @@ import 'package:get/get_instance/src/get_instance.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:local_app/app/HomeScreen/MainHomeScreen.dart';
+import 'package:local_app/app/homeScreen/MainHomeScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
 
