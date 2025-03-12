@@ -206,7 +206,7 @@ class _AddShopingItemState extends State<AddShopingItem>
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.card_travel),
-              Padding(padding: EdgeInsets.only(left: 6), child: Text("209/-")),
+              // Padding(padding: EdgeInsets.only(left: 6), child: Text("209/-")),
             ],
           ),
         ),
