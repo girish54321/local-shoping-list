@@ -27,6 +27,10 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
     Helper().goToPage(context: context, child: SettingsScreen());
   }
 
+  bool isHomeScreenSelected() {
+    return _selectedIndex == 0 ? true : false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +41,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
         ],
       ),
       body:
-          _selectedIndex == 0
+          isHomeScreenSelected()
               ? Obx(
                 (() => ShopingList(
                   isCompleted: false,
@@ -51,10 +55,19 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                 )),
               ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.history_rounded),
+            icon: Icon(
+              isHomeScreenSelected() ? Icons.home : Icons.home_outlined,
+            ),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              !isHomeScreenSelected()
+                  ? Icons.check_circle
+                  : Icons.check_circle_outline,
+            ),
             label: 'History',
           ),
         ],
