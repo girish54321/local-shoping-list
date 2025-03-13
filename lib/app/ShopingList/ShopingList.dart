@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/instance_manager.dart';
+import 'package:local_app/Helper/no_dat_view.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/app/AddShopingItem/AddShopingItemScreen.dart';
@@ -37,27 +38,30 @@ class _ShopingListState extends State<ShopingList> {
       refreshController: refreshController,
       onLoading: () => {},
       onRefresh: startReload,
-      child: ListView.builder(
-        itemCount: widget.shoppingList?.length ?? 0,
-        itemBuilder: (context, index) {
-          ShoppingListModel task = widget.shoppingList![index]!;
-          return ListTile(
-            leading: Icon(
-              Icons.checklist_rounded,
-              color: widget.isCompleted ? Colors.green : Colors.orange,
-            ),
-            onTap: () {
-              shopingListController.selecteShopListID(task.id ?? 0);
-              Helper().goToPage(
-                context: context,
-                child: AddShopingItem(shopingList: task),
-              );
-            },
-            title: Text(task.title ?? ""),
-            subtitle: Text(task.description ?? ""),
-          );
-        },
-      ),
+      child:
+          widget.shoppingList?.isEmpty == true
+              ? NoDataView()
+              : ListView.builder(
+                itemCount: widget.shoppingList?.length ?? 0,
+                itemBuilder: (context, index) {
+                  ShoppingListModel task = widget.shoppingList![index]!;
+                  return ListTile(
+                    leading: Icon(
+                      Icons.checklist_rounded,
+                      color: widget.isCompleted ? Colors.green : Colors.orange,
+                    ),
+                    onTap: () {
+                      shopingListController.selecteShopListID(task.id ?? 0);
+                      Helper().goToPage(
+                        context: context,
+                        child: AddShopingItem(shopingList: task),
+                      );
+                    },
+                    title: Text(task.title ?? ""),
+                    subtitle: Text(task.description ?? ""),
+                  );
+                },
+              ),
     );
   }
 

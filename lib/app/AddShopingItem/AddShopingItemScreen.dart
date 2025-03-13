@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/state_manager.dart';
 import 'package:local_app/DataBase/shop-list-database.dart';
+import 'package:local_app/Helper/no_dat_view.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/app/AddItems/AddItemsScreen.dart';
 import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
@@ -63,53 +64,64 @@ class _AddShopingItemState extends State<AddShopingItem>
       var completedList = shopingListController.completedShopingListItem.value;
       var inprogressList =
           shopingListController.inprogressShopingListItem.value;
-      return ListView.builder(
-        itemCount:
-            ((isCompletedList ? completedList : inprogressList)?.length ?? 0) +
-            1,
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            if (isCompletedList) {
-              return SizedBox();
-            }
-            return ListTile(
-              title: TextField(
-                controller: itemName,
-                textInputAction: TextInputAction.go,
-                onSubmitted: (value) {
-                  _addShopingItem(value);
-                  itemName?.text = "";
-                },
-                decoration: InputDecoration(labelText: "Enter your item name"),
-              ),
-            );
-          }
-          ShoppingListItemModel? item =
-              isCompletedList
-                  ? completedList![index - 1]
-                  : inprogressList![index - 1];
-          return ListTile(
-            title: Text(item?.name ?? "Nice "),
-            subtitle:
-                item?.quantity != null
-                    ? Text(
-                      "Quantity: ${item?.quantity?.toString()} / Price: ${item?.price}",
-                    )
-                    : null,
-            trailing: openPopUpMenu(item),
-            leading: Checkbox(
-              value: item?.status == 1,
-              onChanged: (val) {
-                databaseService.completeShopingListItem(
-                  item!,
-                  val == true ? 1 : 0,
+      return Stack(
+        children: [
+          (isCompletedList && completedList!.isEmpty ||
+                  !isCompletedList && inprogressList!.isEmpty)
+              ? Center(child: NoDataView())
+              : SizedBox(),
+          ListView.builder(
+            itemCount:
+                ((isCompletedList ? completedList : inprogressList)?.length ??
+                    0) +
+                1,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                if (isCompletedList) {
+                  return SizedBox();
+                }
+                return ListTile(
+                  title: TextField(
+                    controller: itemName,
+                    textInputAction: TextInputAction.go,
+                    onSubmitted: (value) {
+                      _addShopingItem(value);
+                      itemName?.text = "";
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Enter your item name",
+                    ),
+                  ),
                 );
-                loadListItem();
-                setState(() {});
-              },
-            ),
-          );
-        },
+              }
+              ShoppingListItemModel? item =
+                  isCompletedList
+                      ? completedList![index - 1]
+                      : inprogressList![index - 1];
+              return ListTile(
+                title: Text(item?.name ?? "Nice "),
+                subtitle:
+                    item?.quantity != null
+                        ? Text(
+                          "Quantity: ${item?.quantity?.toString()} / Price: ${item?.price}",
+                        )
+                        : null,
+                trailing: openPopUpMenu(item),
+                leading: Checkbox(
+                  value: item?.status == 1,
+                  onChanged: (val) {
+                    databaseService.completeShopingListItem(
+                      item!,
+                      val == true ? 1 : 0,
+                    );
+                    loadListItem();
+                    setState(() {});
+                  },
+                ),
+              );
+            },
+          ),
+        ],
       );
     });
   }
