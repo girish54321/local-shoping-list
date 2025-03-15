@@ -84,9 +84,21 @@ class DatabaseService {
   //* Get all the Shoping list items
   Future<List<ShoppingListItemModel>?> getShopingListItem(
     int id,
-    bool isCompleted,
+    bool? isCompleted,
   ) async {
     final db = await database;
+
+    if (isCompleted == null) {
+      final List<Map<String, dynamic>> myTaskData = await db.query(
+        shoppingListItemTable,
+        where: '$shoppingListTable = ?',
+        whereArgs: [id],
+      );
+      List<ShoppingListItemModel> tasks =
+          myTaskData.map((e) => ShoppingListItemModel.fromMap(e)).toList();
+
+      return tasks;
+    }
 
     if (isCompleted) {
       final List<Map<String, dynamic>> myTaskData = await db.query(
@@ -160,31 +172,41 @@ class DatabaseService {
   //* Get all the Shoping lists
   Future<List<ShoppingListModel>?> getShopingList(bool isCompleted) async {
     final db = await database;
-    final List<Map<String, dynamic>> myTaskData = await db.query(
+    final List<Map<String, dynamic>> myShopList = await db.query(
       shoppingListTable,
     );
 
-    if (myTaskData.isNotEmpty) {
-      List<ShoppingListModel> tasks = [];
-      for (var e in myTaskData) {
-        // Use a for loop instead of map
-        var isNotCompleted = await getShopingListItem(e['id'], false);
-        if (isNotCompleted!.isNotEmpty) {
-          tasks.add(ShoppingListModel.fromMap(e, false));
-        } else {
-          tasks.add(ShoppingListModel.fromMap(e, true));
-        }
-      }
-
-      List<ShoppingListModel> filteredList = [];
-      if (isCompleted) {
-        filteredList = tasks.where((task) => task.isCompleted).toList();
-      } else {
-        filteredList = tasks.where((task) => !task.isCompleted).toList();
-      }
-      return filteredList;
-    } else {
+    if (myShopList.isEmpty) {
       return [];
     }
+
+    List<ShoppingListModel> dbShopList = [];
+
+    for (var e in myShopList) {
+      // * Get all the Shoping list ITEMS for eiven shop list
+      var allShopListItem = await getShopingListItem(e['id'], null);
+
+      //* if no items in myShopList then shopList is newly createed
+      if (allShopListItem!.isEmpty) {
+        dbShopList.add(ShoppingListModel.fromMap(e, false, true));
+      }
+
+      //* if item is marked as completed
+      if (allShopListItem.any((item) => item.status == 1)) {
+        dbShopList.add(ShoppingListModel.fromMap(e, true, false));
+      } else
+      //* it item is marked as not completed
+      {
+        dbShopList.add(ShoppingListModel.fromMap(e, false, false));
+      }
+    }
+
+    List<ShoppingListModel> filteredList = [];
+    if (isCompleted) {
+      filteredList = dbShopList.where((item) => item.isCompleted).toList();
+    } else {
+      filteredList = dbShopList.where((item) => !item.isCompleted).toList();
+    }
+    return filteredList;
   }
 }
