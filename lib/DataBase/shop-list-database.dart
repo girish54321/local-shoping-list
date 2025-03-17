@@ -183,20 +183,15 @@ class DatabaseService {
     List<ShoppingListModel> dbShopList = [];
 
     for (var e in myShopList) {
-      // * Get all the Shoping list ITEMS for eiven shop list
       var allShopListItem = await getShopingListItem(e['id'], null);
-
-      //* if no items in myShopList then shopList is newly createed
-      if (allShopListItem!.isEmpty) {
+      if (allShopListItem == null || allShopListItem.isEmpty) {
         dbShopList.add(ShoppingListModel.fromMap(e, false, true));
+        continue;
       }
 
-      //* if item is marked as completed
-      if (allShopListItem.any((item) => item.status == 1)) {
+      if (allShopListItem.every((item) => item.status == 1)) {
         dbShopList.add(ShoppingListModel.fromMap(e, true, false));
-      } else
-      //* it item is marked as not completed
-      {
+      } else {
         dbShopList.add(ShoppingListModel.fromMap(e, false, false));
       }
     }
