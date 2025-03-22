@@ -7,6 +7,7 @@ class ShoppingListModel {
   final String? description;
   final int? status;
   final bool isCompleted;
+  final bool isNew;
 
   ShoppingListModel({
     this.id,
@@ -14,11 +15,13 @@ class ShoppingListModel {
     this.description,
     this.status,
     this.isCompleted = false,
+    this.isNew = false,
   });
 
   factory ShoppingListModel.fromMap(
     Map<String, dynamic> map,
     bool isCompleted,
+    bool isNew,
   ) {
     return ShoppingListModel(
       id: map['id'] as int?,
@@ -26,6 +29,7 @@ class ShoppingListModel {
       description: map[shoppingListDescription] as String?,
       status: map[shoppingListStatus] as int?,
       isCompleted: isCompleted,
+      isNew: isNew,
     );
   }
 }
