@@ -136,4 +136,53 @@ class ShopListDataSource {
       return incomingData;
     }
   }
+
+  Future<Result> deleteShopListItem(shopItemId) async {
+    Result incomingData = Result.loading("Loading");
+    try {
+      final response = await client.request(
+        requestType: RequestType.DELETE,
+        path:
+            "${APIPathHelper.getValue(APIPath.deleteShopListItem)}/$shopItemId",
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        incomingData = Result<OperationResponse>.success(
+          OperationResponse.fromJson(json.decode(response.body)),
+        );
+        return incomingData;
+      } else {
+        DialogHelper.showErrorDialog(description: response.body.toString());
+        incomingData = Result.error(response.statusCode);
+        return incomingData;
+      }
+    } catch (error) {
+      incomingData = Result.error("Something went wrong!, $error");
+      DialogHelper.showErrorDialog(description: "Something went wrong! $error");
+      return incomingData;
+    }
+  }
+
+  Future<Result> deleteShopList(shopListID) async {
+    Result incomingData = Result.loading("Loading");
+    try {
+      final response = await client.request(
+        requestType: RequestType.DELETE,
+        path: "${APIPathHelper.getValue(APIPath.deleteShopList)}/$shopListID",
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        incomingData = Result<OperationResponse>.success(
+          OperationResponse.fromJson(json.decode(response.body)),
+        );
+        return incomingData;
+      } else {
+        DialogHelper.showErrorDialog(description: response.body.toString());
+        incomingData = Result.error(response.statusCode);
+        return incomingData;
+      }
+    } catch (error) {
+      incomingData = Result.error("Something went wrong!, $error");
+      DialogHelper.showErrorDialog(description: "Something went wrong! $error");
+      return incomingData;
+    }
+  }
 }

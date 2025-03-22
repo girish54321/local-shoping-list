@@ -41,7 +41,7 @@ class ReqResClient {
           body: json.encode(parameter),
         );
       case RequestType.DELETE:
-        return _client.delete(Uri.parse("$_baseUrl/$path"));
+        return _client.delete(headers: headers, Uri.parse("$_baseUrl/$path"));
     }
   }
 

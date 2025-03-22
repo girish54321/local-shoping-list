@@ -170,12 +170,10 @@ class _AddShopingItemState extends State<AddShopingItem>
         }
         if (val == "delete") {
           if (item != null) {
-            databaseService.deleteItem(item.id ?? 0);
-            loadListItem();
+            shopingListController.deleteShopListItem(item.itemId ?? "0");
           } else {
-            databaseService.deleteShopList(widget.shopingList.id ?? 0);
-            loadListItem();
-            Navigator.of(context).pop();
+            print("dlete 22");
+            shopingListController.deleteShopList();
           }
           setState(() {});
           return;

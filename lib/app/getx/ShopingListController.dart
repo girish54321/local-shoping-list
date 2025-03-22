@@ -138,6 +138,37 @@ class ShopingListController extends GetxController {
     return item;
   }
 
+  void deleteShopListItem(String shopListItemID) {
+    Future<Result> result = apiResponse.deleteShopListItem(shopListItemID);
+    result.then((value) {
+      if (value is SuccessState) {
+        Helper().hideLoading();
+        var res = value.value as OperationResponse;
+        if (res.success == true) {
+          getShopingListItemInProgress();
+          getShopingListItemCompleted();
+        }
+      }
+    });
+  }
+
+  void deleteShopList() {
+    Future<Result> result = apiResponse.deleteShopList(
+      selectedShopListID.value,
+    );
+    result.then((value) {
+      if (value is SuccessState) {
+        Helper().hideLoading();
+        var res = value.value as OperationResponse;
+        if (res.success == true) {
+          Helper().goBack();
+          loadCompletedShopingList();
+          loadInProgressShopingList();
+        }
+      }
+    });
+  }
+
   @override
   void onInit() {
     // loadApiCompletedShopingList();

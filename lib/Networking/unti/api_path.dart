@@ -5,6 +5,8 @@ enum APIPath {
   getShopingLisItems,
   createShopListItem,
   updateShopListItemState,
+  deleteShopListItem,
+  deleteShopList,
 }
 
 class APIPathHelper {
@@ -22,6 +24,10 @@ class APIPathHelper {
         return "shoplist/create-shop-item";
       case APIPath.updateShopListItemState:
         return "shoplist/update-shop-list-state";
+      case APIPath.deleteShopListItem:
+        return "shoplist/delete-shop-list-item";
+      case APIPath.deleteShopList:
+        return "shoplist/delete-shop-list";
     }
   }
 }
