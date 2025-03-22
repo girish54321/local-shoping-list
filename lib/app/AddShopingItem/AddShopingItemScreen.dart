@@ -4,10 +4,13 @@ import 'package:get/state_manager.dart';
 import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/no_dat_view.dart';
 import 'package:local_app/Helper/helper.dart';
+import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
+import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/AddItems/AddItemsScreen.dart';
 import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
+import 'package:local_app/modal/operation_response.dart';
 
 class AddShopingItem extends StatefulWidget {
   final ShoppingListModel shopingList;
@@ -24,6 +27,7 @@ class _AddShopingItemState extends State<AddShopingItem>
   final ShopingListController shopingListController = Get.find();
 
   TextEditingController? itemName = TextEditingController();
+  ShopListDataSource apiResponse = ShopListDataSource();
 
   void _addShopingItem(String itemName) {
     var item = ShoppingListItemModel(
@@ -33,9 +37,21 @@ class _AddShopingItemState extends State<AddShopingItem>
       price: 0,
       status: 0,
     );
-    databaseService.addItemToShopingList(item);
-    loadListItem();
-    setState(() {});
+    Future<Result> result = apiResponse.createShopListItem({
+      "shopListId": shopingListController.selectedShopListID.value,
+      "listName": itemName,
+      "listInfo": itemName,
+    });
+    result.then((value) {
+      if (value is SuccessState) {
+        Helper().hideLoading();
+        var res = value.value as OperationResponse;
+        if (res.success == true) {
+          loadListItem();
+          setState(() {});
+        }
+      }
+    });
   }
 
   void loadListItem() {
@@ -108,14 +124,21 @@ class _AddShopingItemState extends State<AddShopingItem>
                         : null,
                 trailing: openPopUpMenu(item),
                 leading: Checkbox(
-                  value: item?.status == 1,
+                  value: item?.completed == "completed" ? true : false,
                   onChanged: (val) {
-                    databaseService.completeShopingListItem(
-                      item!,
-                      val == true ? 1 : 0,
+                    Future<Result> result = apiResponse.updateShopListItemState(
+                      {"shopListId": item?.itemId, "isCompleted": val},
                     );
-                    loadListItem();
-                    setState(() {});
+                    result.then((value) {
+                      if (value is SuccessState) {
+                        Helper().hideLoading();
+                        var res = value.value as OperationResponse;
+                        if (res.success == true) {
+                          loadListItem();
+                          setState(() {});
+                        }
+                      }
+                    });
                   },
                 ),
               );

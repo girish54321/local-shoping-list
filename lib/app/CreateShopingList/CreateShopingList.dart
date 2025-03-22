@@ -3,6 +3,7 @@ import 'package:get/instance_manager.dart';
 import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/appInputText.dart';
 import 'package:local_app/Helper/buttons.dart';
+import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 
@@ -20,29 +21,21 @@ class _CreateshopinglistState extends State<Createshopinglist> {
   final ShopingListController shopingListController = Get.find();
 
   final DatabaseService _databaseService = DatabaseService.databaseService;
-
-  void updateShopingListState() {
-    shopingListController.loadCompletedShopingList();
-    shopingListController.loadInProgressShopingList();
-  }
+  ShopListDataSource apiResponse = ShopListDataSource();
 
   void createList() async {
     if (nameController.text.isEmpty || infoController.text.isEmpty) {
       return;
     }
-
     final ShoppingListModel shoppingList = ShoppingListModel(
       title: nameController.text,
       description: infoController.text,
     );
-
-    _databaseService.createShopingList(shoppingList);
-
-    nameController.clear();
-    infoController.clear();
-
-    Navigator.of(context).pop();
-    updateShopingListState();
+    shopingListController.addNewShopList(
+      shoppingList.title!,
+      shoppingList.description!,
+    );
+    // _databaseService.createShopingList(shoppingList);
   }
 
   void updateShopingList() async {
@@ -65,7 +58,7 @@ class _CreateshopinglistState extends State<Createshopinglist> {
     infoController.clear();
 
     Navigator.of(context).pop();
-    updateShopingListState();
+    // updateShopingListState();
   }
 
   @override
