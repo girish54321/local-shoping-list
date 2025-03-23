@@ -52,11 +52,12 @@ class _ShopingListState extends State<ShopingList> {
                     ),
                     onTap: () {
                       shopingListController.selecteShopListID(
-                        task.shopId ?? "0",
+                        null,
+                        task.shopId ?? "",
                       );
                       Helper().goToPage(
                         context: context,
-                        child: AddShopingItem(shopingList: task),
+                        child: AddShopingItem(shoppingListModel: task),
                       );
                     },
                     title: Text(task.title ?? ""),

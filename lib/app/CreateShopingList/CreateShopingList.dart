@@ -31,6 +31,9 @@ class _CreateshopinglistState extends State<Createshopinglist> {
       title: nameController.text,
       description: infoController.text,
     );
+    if (widget.updateItem != null) {
+      return;
+    }
     shopingListController.addNewShopList(
       shoppingList.title!,
       shoppingList.description!,
@@ -47,18 +50,11 @@ class _CreateshopinglistState extends State<Createshopinglist> {
     }
 
     final ShoppingListModel updatedShoppingList = ShoppingListModel(
-      id: widget.updateItem?.id,
       title: nameController.text,
       description: infoController.text,
     );
 
-    _databaseService.updateShoplist(updatedShoppingList);
-
-    nameController.clear();
-    infoController.clear();
-
-    Navigator.of(context).pop();
-    // updateShopingListState();
+    shopingListController.updateShopList(updatedShoppingList);
   }
 
   @override

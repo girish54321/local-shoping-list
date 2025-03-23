@@ -7,6 +7,8 @@ enum APIPath {
   updateShopListItemState,
   deleteShopListItem,
   deleteShopList,
+  updateShopListItem,
+  updateShopList,
 }
 
 class APIPathHelper {
@@ -28,6 +30,10 @@ class APIPathHelper {
         return "shoplist/delete-shop-list-item";
       case APIPath.deleteShopList:
         return "shoplist/delete-shop-list";
+      case APIPath.updateShopListItem:
+        return "shoplist/update-shop-item";
+      case APIPath.updateShopList:
+        return "shoplist/update-shop-list";
     }
   }
 }

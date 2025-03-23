@@ -13,8 +13,8 @@ import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:local_app/modal/operation_response.dart';
 
 class AddShopingItem extends StatefulWidget {
-  final ShoppingListModel shopingList;
-  const AddShopingItem({super.key, required this.shopingList});
+  final ShoppingListModel? shoppingListModel;
+  const AddShopingItem({super.key, this.shoppingListModel});
 
   @override
   State<AddShopingItem> createState() => _AddShopingItemState();
@@ -31,27 +31,13 @@ class _AddShopingItemState extends State<AddShopingItem>
 
   void _addShopingItem(String itemName) {
     var item = ShoppingListItemModel(
-      id: widget.shopingList.id,
+      itemId: shopingListController.selectedState.value.remoteShopListID,
       name: itemName,
       quantity: 1,
       price: 0,
       status: 0,
     );
-    Future<Result> result = apiResponse.createShopListItem({
-      "shopListId": shopingListController.selectedShopListID.value,
-      "listName": itemName,
-      "listInfo": itemName,
-    });
-    result.then((value) {
-      if (value is SuccessState) {
-        Helper().hideLoading();
-        var res = value.value as OperationResponse;
-        if (res.success == true) {
-          loadListItem();
-          setState(() {});
-        }
-      }
-    });
+    shopingListController.createShopListItem(item);
   }
 
   void loadListItem() {
@@ -154,17 +140,15 @@ class _AddShopingItemState extends State<AddShopingItem>
       onSelected: (val) {
         if (val == "edit") {
           if (item != null) {
+            shopingListController.selecteListItemStateID(null, item.itemId);
             Helper().goToPage(
               context: context,
-              child: AddItemsScreen(
-                shopListId: widget.shopingList.id ?? 0,
-                shopListItem: item,
-              ),
+              child: AddItemsScreen(shopListItem: item),
             );
           } else {
             Helper().goToPage(
               context: context,
-              child: Createshopinglist(updateItem: widget.shopingList),
+              child: Createshopinglist(updateItem: widget.shoppingListModel),
             );
           }
         }
@@ -172,7 +156,6 @@ class _AddShopingItemState extends State<AddShopingItem>
           if (item != null) {
             shopingListController.deleteShopListItem(item.itemId ?? "0");
           } else {
-            print("dlete 22");
             shopingListController.deleteShopList();
           }
           setState(() {});
@@ -207,10 +190,7 @@ class _AddShopingItemState extends State<AddShopingItem>
         actions: [
           IconButton(
             onPressed: () {
-              Helper().goToPage(
-                context: context,
-                child: AddItemsScreen(shopListId: widget.shopingList.id ?? 0),
-              );
+              Helper().goToPage(context: context, child: AddItemsScreen());
             },
             icon: Icon(Icons.add),
           ),
@@ -234,7 +214,7 @@ class _AddShopingItemState extends State<AddShopingItem>
       ),
       bottomNavigationBar: SafeArea(
         child: ListTile(
-          title: Text(widget.shopingList.title ?? ""),
+          title: Text("Nice View"),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

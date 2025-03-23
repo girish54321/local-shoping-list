@@ -185,4 +185,54 @@ class ShopListDataSource {
       return incomingData;
     }
   }
+
+  Future<Result> updateShopListItem(parameter) async {
+    Result incomingData = Result.loading("Loading");
+    try {
+      final response = await client.request(
+        requestType: RequestType.PUT,
+        path: APIPathHelper.getValue(APIPath.updateShopListItem),
+        parameter: parameter,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        incomingData = Result<OperationResponse>.success(
+          OperationResponse.fromJson(json.decode(response.body)),
+        );
+        return incomingData;
+      } else {
+        DialogHelper.showErrorDialog(description: response.body.toString());
+        incomingData = Result.error(response.statusCode);
+        return incomingData;
+      }
+    } catch (error) {
+      incomingData = Result.error("Something went wrong!, $error");
+      DialogHelper.showErrorDialog(description: "Something went wrong! $error");
+      return incomingData;
+    }
+  }
+
+  Future<Result> updateShopList(parameter) async {
+    Result incomingData = Result.loading("Loading");
+    try {
+      final response = await client.request(
+        requestType: RequestType.PUT,
+        path: APIPathHelper.getValue(APIPath.updateShopList),
+        parameter: parameter,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        incomingData = Result<OperationResponse>.success(
+          OperationResponse.fromJson(json.decode(response.body)),
+        );
+        return incomingData;
+      } else {
+        DialogHelper.showErrorDialog(description: response.body.toString());
+        incomingData = Result.error(response.statusCode);
+        return incomingData;
+      }
+    } catch (error) {
+      incomingData = Result.error("Something went wrong!, $error");
+      DialogHelper.showErrorDialog(description: "Something went wrong! $error");
+      return incomingData;
+    }
+  }
 }

@@ -8,6 +8,21 @@ import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:local_app/modal/operation_response.dart';
 import 'package:local_app/modal/shop_list_item_response.dart';
 
+class SelectedShopList {
+  int? localShopListID;
+  String? remoteShopListID;
+
+  int? localShopListItemID;
+  String? remoteShopListItemID;
+
+  SelectedShopList({
+    this.localShopListID,
+    this.remoteShopListID,
+    this.localShopListItemID,
+    this.remoteShopListItemID,
+  });
+}
+
 class ShopingListController extends GetxController {
   final DatabaseService _databaseService = DatabaseService.databaseService;
 
@@ -23,10 +38,31 @@ class ShopingListController extends GetxController {
   Rx<List<ShoppingListItemModel?>?> inprogressShopingListItem =
       Rx<List<ShoppingListItemModel>>([]);
 
-  RxString selectedShopListID = "".obs;
+  Rx<SelectedShopList> selectedState = SelectedShopList().obs;
 
-  void selecteShopListID(String selected) {
-    selectedShopListID.value = selected;
+  void selecteShopListID(int? selecteLocalListID, String? selectRemoteListID) {
+    if (selecteLocalListID != null) {
+      selectedState.value = SelectedShopList(
+        localShopListID: selecteLocalListID,
+      );
+    }
+    if (selectRemoteListID != null) {
+      selectedState.value = SelectedShopList(
+        remoteShopListID: selectRemoteListID,
+      );
+    }
+  }
+
+  void selecteListItemStateID(
+    int? selecteLocalListItemID,
+    String? selectRemoteListItemID,
+  ) {
+    if (selecteLocalListItemID != null) {
+      selectedState.value.localShopListItemID = selecteLocalListItemID;
+    }
+    if (selectRemoteListItemID != null) {
+      selectedState.value.remoteShopListItemID = selectRemoteListItemID;
+    }
   }
 
   void addNewShopList(String title, String description) {
@@ -81,7 +117,7 @@ class ShopingListController extends GetxController {
   //* Load the shoping list item list for a selected shop list
   void getShopingListItemInProgress() async {
     Future<Result> result = apiResponse.getShopListItem(
-      selectedShopListID.value,
+      selectedState.value.remoteShopListID ?? "",
       {"isCompleted": ""},
     );
     result.then((value) {
@@ -91,6 +127,43 @@ class ShopingListController extends GetxController {
         inprogressShopingListItem.value = loopShopListItem(apiItem);
         inprogressShopingListItem.refresh();
       } else {}
+    });
+  }
+
+  void updateShopListItem(ShoppingListItemModel item) {
+    Future<Result> result = apiResponse.updateShopListItem({
+      "shopListId": selectedState.value.remoteShopListItemID,
+      "listName": item.name,
+      "listInfo": item.name,
+    });
+    result.then((value) {
+      if (value is SuccessState) {
+        Helper().hideLoading();
+        var res = value.value as OperationResponse;
+        if (res.success == true) {
+          getShopingListItemInProgress();
+          getShopingListItemCompleted();
+          Helper().goBack();
+        }
+      }
+    });
+  }
+
+  void createShopListItem(ShoppingListItemModel item) {
+    Future<Result> result = apiResponse.createShopListItem({
+      "shopListId": selectedState.value.remoteShopListID,
+      "listName": item.name,
+      "listInfo": item.name,
+    });
+    result.then((value) {
+      if (value is SuccessState) {
+        Helper().hideLoading();
+        var res = value.value as OperationResponse;
+        if (res.success == true) {
+          getShopingListItemInProgress();
+          getShopingListItemCompleted();
+        }
+      }
     });
   }
 
@@ -111,7 +184,7 @@ class ShopingListController extends GetxController {
   //* Load the shoping list item list for a selected shop list
   void getShopingListItemCompleted() async {
     Future<Result> result = apiResponse.getShopListItem(
-      selectedShopListID.value,
+      selectedState.value.remoteShopListID ?? "",
       {"isCompleted": "isCompleted"},
     );
     result.then((value) {
@@ -130,8 +203,8 @@ class ShopingListController extends GetxController {
       var shopListItems = apiItem.allShopLists?[i];
       var loopItem = ShoppingListModel(
         shopId: shopListItems?.shopListId,
-        description: shopListItems?.listName,
-        title: shopListItems?.listInfo,
+        description: shopListItems?.listInfo,
+        title: shopListItems?.listName,
       );
       item.add(loopItem);
     }
@@ -154,8 +227,27 @@ class ShopingListController extends GetxController {
 
   void deleteShopList() {
     Future<Result> result = apiResponse.deleteShopList(
-      selectedShopListID.value,
+      selectedState.value.remoteShopListID ?? "",
     );
+    result.then((value) {
+      if (value is SuccessState) {
+        Helper().hideLoading();
+        var res = value.value as OperationResponse;
+        if (res.success == true) {
+          Helper().goBack();
+          loadCompletedShopingList();
+          loadInProgressShopingList();
+        }
+      }
+    });
+  }
+
+  void updateShopList(ShoppingListModel item) {
+    Future<Result> result = apiResponse.updateShopList({
+      "shopListId": selectedState.value.remoteShopListID ?? "",
+      "listName": item.title,
+      "listInfo": item.description,
+    });
     result.then((value) {
       if (value is SuccessState) {
         Helper().hideLoading();
@@ -171,7 +263,6 @@ class ShopingListController extends GetxController {
 
   @override
   void onInit() {
-    // loadApiCompletedShopingList();
     loadCompletedShopingList();
     loadInProgressShopingList();
     super.onInit();
