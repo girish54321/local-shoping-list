@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:page_transition/page_transition.dart';
 
 class Helper {
@@ -13,5 +15,21 @@ class Helper {
     if (Platform.isIOS) {
       Navigator.push(context, MaterialPageRoute(builder: (context) => child));
     }
+  }
+
+  goBack() {
+    Get.back();
+  }
+
+  dismissKeyBoard(BuildContext context) {
+    FocusScope.of(context).requestFocus(FocusNode());
+  }
+
+  showLoading([String? message]) {
+    DialogHelper.showLoading(message);
+  }
+
+  hideLoading() {
+    Get.until((route) => !Get.isDialogOpen!);
   }
 }

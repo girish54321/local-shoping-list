@@ -51,10 +51,13 @@ class _ShopingListState extends State<ShopingList> {
                       color: widget.isCompleted ? Colors.green : Colors.orange,
                     ),
                     onTap: () {
-                      shopingListController.selecteShopListID(task.id ?? 0);
+                      shopingListController.selecteShopListID(
+                        null,
+                        task.shopId ?? "",
+                      );
                       Helper().goToPage(
                         context: context,
-                        child: AddShopingItem(shopingList: task),
+                        child: AddShopingItem(shoppingListModel: task),
                       );
                     },
                     title: Text(task.title ?? ""),
