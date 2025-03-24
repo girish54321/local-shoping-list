@@ -29,7 +29,17 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
   }
 
   void updateItem() {
-    var updateItem = ShoppingListItemModel(name: itemName?.text);
+    var updateItem = ShoppingListItemModel(
+      id: widget.shopListItem?.id ?? 0,
+      name: itemName?.text ?? widget.shopListItem?.name,
+      quantity: int.parse(
+        quantity?.text ?? widget.shopListItem?.quantity.toString() ?? "0",
+      ),
+      price: int.parse(
+        price?.text ?? widget.shopListItem?.price.toString() ?? "0",
+      ),
+      status: widget.shopListItem?.status ?? 0,
+    );
     shopingListController.updateShopListItem(updateItem);
   }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/state_manager.dart';
@@ -31,6 +33,7 @@ class _AddShopingItemState extends State<AddShopingItem>
 
   void _addShopingItem(String itemName) {
     var item = ShoppingListItemModel(
+      id: shopingListController.selectedState.value.localShopListID,
       itemId: shopingListController.selectedState.value.remoteShopListID,
       name: itemName,
       quantity: 1,
@@ -38,6 +41,8 @@ class _AddShopingItemState extends State<AddShopingItem>
       status: 0,
     );
     shopingListController.createShopListItem(item);
+    var timer = Timer(Duration(seconds: 1), () => setState(() {}));
+    timer.cancel();
   }
 
   void loadListItem() {
@@ -66,6 +71,7 @@ class _AddShopingItemState extends State<AddShopingItem>
       var completedList = shopingListController.completedShopingListItem.value;
       var inprogressList =
           shopingListController.inprogressShopingListItem.value;
+
       return Stack(
         children: [
           (isCompletedList && completedList!.isEmpty ||
@@ -100,6 +106,13 @@ class _AddShopingItemState extends State<AddShopingItem>
                   isCompletedList
                       ? completedList![index - 1]
                       : inprogressList![index - 1];
+              bool isChecked = false;
+              if (item?.itemId != null) {
+                isChecked = item?.completed == "completed";
+              } else {
+                isChecked = item?.status == 1;
+              }
+
               return ListTile(
                 title: Text(item?.name ?? "Nice "),
                 subtitle:
@@ -110,21 +123,9 @@ class _AddShopingItemState extends State<AddShopingItem>
                         : null,
                 trailing: openPopUpMenu(item),
                 leading: Checkbox(
-                  value: item?.completed == "completed" ? true : false,
+                  value: isChecked,
                   onChanged: (val) {
-                    Future<Result> result = apiResponse.updateShopListItemState(
-                      {"shopListId": item?.itemId, "isCompleted": val},
-                    );
-                    result.then((value) {
-                      if (value is SuccessState) {
-                        Helper().hideLoading();
-                        var res = value.value as OperationResponse;
-                        if (res.success == true) {
-                          loadListItem();
-                          setState(() {});
-                        }
-                      }
-                    });
+                    shopingListController.updateItemState(item, val);
                   },
                 ),
               );
@@ -154,7 +155,7 @@ class _AddShopingItemState extends State<AddShopingItem>
         }
         if (val == "delete") {
           if (item != null) {
-            shopingListController.deleteShopListItem(item.itemId ?? "0");
+            shopingListController.deleteShopListItem(item.itemId, item.id);
           } else {
             shopingListController.deleteShopList();
           }
@@ -188,12 +189,13 @@ class _AddShopingItemState extends State<AddShopingItem>
       appBar: AppBar(
         title: Text('Add Shopping Item'),
         actions: [
-          IconButton(
-            onPressed: () {
-              Helper().goToPage(context: context, child: AddItemsScreen());
-            },
-            icon: Icon(Icons.add),
-          ),
+          //TODO: Keeping this spmiple
+          // IconButton(
+          //   onPressed: () {
+          //     Helper().goToPage(context: context, child: AddItemsScreen());
+          //   },
+          //   icon: Icon(Icons.add),
+          // ),
           openPopUpMenu(null),
         ],
         bottom: TabBar(

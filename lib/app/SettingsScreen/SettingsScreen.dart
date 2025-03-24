@@ -32,15 +32,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: Column(
         children: [
           ListTile(
-            title: Text("Theme"),
-            subtitle: Text("Change app theme"),
+            leading: Icon(Icons.network_locked),
+            title: Text("Offline Mode"),
+            subtitle: Text("Use app Offline only"),
             trailing: Obx(
               (() => Switch(
-                value: settingController.isDark.value,
-                onChanged: (bool _) => settingController.toggleThem(),
+                value: settingController.offlineMode.value,
+                onChanged: (bool val) => settingController.saveOfflineMode(val),
               )),
             ),
           ),
+          Obx(() {
+            return ListTile(
+              leading: Icon(
+                settingController.isDark.value
+                    ? Icons.dark_mode
+                    : Icons.light_mode,
+              ),
+              title: Text("Theme"),
+              subtitle: Text("Change app theme"),
+              trailing: Switch(
+                value: settingController.isDark.value,
+                onChanged: (bool _) => settingController.toggleThem(),
+              ),
+            );
+          }),
         ],
       ),
     );

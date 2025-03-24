@@ -4,6 +4,7 @@ import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/modal/main_shop_list.dart';
 import 'package:local_app/Networking/unti/result.dart';
+import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:local_app/modal/operation_response.dart';
 import 'package:local_app/modal/shop_list_item_response.dart';
@@ -25,6 +26,8 @@ class SelectedShopList {
 
 class ShopingListController extends GetxController {
   final DatabaseService _databaseService = DatabaseService.databaseService;
+
+  final SettingController settingController = Get.find();
 
   ShopListDataSource apiResponse = ShopListDataSource();
 
@@ -66,6 +69,16 @@ class ShopingListController extends GetxController {
   }
 
   void addNewShopList(String title, String description) {
+    if (settingController.offlineMode.value) {
+      _databaseService.createShopingList(
+        ShoppingListModel(title: title, description: description),
+      );
+      Helper().goBack();
+      loadCompletedShopingList();
+      loadInProgressShopingList();
+      return;
+    }
+
     Future<Result> result = apiResponse.createShopList({
       "listName": title,
       "listInfo": description,
@@ -84,7 +97,14 @@ class ShopingListController extends GetxController {
   }
 
   //* Load the completed shoping list
-  void loadCompletedShopingList() {
+  Future<void> loadCompletedShopingList() async {
+    if (settingController.offlineMode.value) {
+      //* Load data from local database
+      var data = await _databaseService.getShopingList(true);
+      completedShopingList.value = data;
+      completedShopingList.refresh();
+      return;
+    }
     Future<Result> result = apiResponse.getShopList({
       "isCompleted": "isCompleted",
     });
@@ -100,9 +120,14 @@ class ShopingListController extends GetxController {
 
   //* Load the inprogress shoping list list
   Future<void> loadInProgressShopingList() async {
-    // var data = await _databaseService.getShopingList(false);
-    // inprogressShopingList.value = data;
-    // completedShopingList.refresh();
+    if (settingController.offlineMode.value) {
+      // Load data from local database
+      var data = await _databaseService.getShopingList(false);
+      inprogressShopingList.value = data;
+      completedShopingList.refresh();
+      return;
+    }
+    //* Remot data
     Future<Result> result = apiResponse.getShopList({"isCompleted": ""});
     result.then((value) {
       if (value is SuccessState) {
@@ -116,6 +141,17 @@ class ShopingListController extends GetxController {
 
   //* Load the shoping list item list for a selected shop list
   void getShopingListItemInProgress() async {
+    //* Load Local data from local database
+    if (settingController.offlineMode.value) {
+      var data = await _databaseService.getShopingListItem(
+        selectedState.value.localShopListID ?? 1,
+        false,
+      );
+      inprogressShopingListItem.value = data;
+      inprogressShopingListItem.refresh();
+      return;
+    }
+    //* Load Remort data
     Future<Result> result = apiResponse.getShopListItem(
       selectedState.value.remoteShopListID ?? "",
       {"isCompleted": ""},
@@ -131,6 +167,14 @@ class ShopingListController extends GetxController {
   }
 
   void updateShopListItem(ShoppingListItemModel item) {
+    if (settingController.offlineMode.value) {
+      _databaseService.updateItem(item);
+      getShopingListItemInProgress();
+      getShopingListItemCompleted();
+      Helper().goBack();
+      return;
+    }
+
     Future<Result> result = apiResponse.updateShopListItem({
       "shopListId": selectedState.value.remoteShopListItemID,
       "listName": item.name,
@@ -150,6 +194,13 @@ class ShopingListController extends GetxController {
   }
 
   void createShopListItem(ShoppingListItemModel item) {
+    if (settingController.offlineMode.value) {
+      _databaseService.addItemToShopingList(item);
+      getShopingListItemInProgress();
+      getShopingListItemCompleted();
+      return;
+    }
+
     Future<Result> result = apiResponse.createShopListItem({
       "shopListId": selectedState.value.remoteShopListID,
       "listName": item.name,
@@ -181,8 +232,42 @@ class ShopingListController extends GetxController {
     return item;
   }
 
+  void updateItemState(ShoppingListItemModel? value, bool? state) {
+    //* completeShopingListItem
+    if (settingController.offlineMode.value) {
+      _databaseService.completeShopingListItem(value!, state ?? true ? 1 : 0);
+      getShopingListItemInProgress();
+      getShopingListItemCompleted();
+      return;
+    }
+    Future<Result> result = apiResponse.updateShopListItemState({
+      "shopListId": value?.itemId,
+      "isCompleted": state,
+    });
+    result.then((value) {
+      if (value is SuccessState) {
+        Helper().hideLoading();
+        var res = value.value as OperationResponse;
+        if (res.success == true) {
+          getShopingListItemInProgress();
+          getShopingListItemCompleted();
+        }
+      }
+    });
+  }
+
   //* Load the shoping list item list for a selected shop list
   void getShopingListItemCompleted() async {
+    //* Load Local data from local database
+    if (settingController.offlineMode.value) {
+      var data = await _databaseService.getShopingListItem(
+        selectedState.value.localShopListID ?? 1,
+        true,
+      );
+      completedShopingListItem.value = data;
+      completedShopingListItem.refresh();
+      return;
+    }
     Future<Result> result = apiResponse.getShopListItem(
       selectedState.value.remoteShopListID ?? "",
       {"isCompleted": "isCompleted"},
@@ -211,7 +296,15 @@ class ShopingListController extends GetxController {
     return item;
   }
 
-  void deleteShopListItem(String shopListItemID) {
+  void deleteShopListItem(String? shopListItemID, int? localItemID) {
+    //* Delete Local ShopListItem
+    if (localItemID != null) {
+      _databaseService.deleteItem(localItemID);
+      getShopingListItemInProgress();
+      getShopingListItemCompleted();
+      return;
+    }
+    //* Delete Remot ShopListItem
     Future<Result> result = apiResponse.deleteShopListItem(shopListItemID);
     result.then((value) {
       if (value is SuccessState) {
@@ -226,6 +319,14 @@ class ShopingListController extends GetxController {
   }
 
   void deleteShopList() {
+    //* Delete Local ShopListItem
+    if (settingController.offlineMode.value) {
+      _databaseService.deleteShopList(selectedState.value.localShopListID ?? 1);
+      loadCompletedShopingList();
+      loadInProgressShopingList();
+      Helper().goBack();
+      return;
+    }
     Future<Result> result = apiResponse.deleteShopList(
       selectedState.value.remoteShopListID ?? "",
     );
@@ -243,6 +344,16 @@ class ShopingListController extends GetxController {
   }
 
   void updateShopList(ShoppingListModel item) {
+    if (settingController.offlineMode.value) {
+      _databaseService.updateShoplist(
+        item,
+        selectedState.value.localShopListID ?? 1,
+      );
+      Helper().goBack();
+      loadCompletedShopingList();
+      loadInProgressShopingList();
+      return;
+    }
     Future<Result> result = apiResponse.updateShopList({
       "shopListId": selectedState.value.remoteShopListID ?? "",
       "listName": item.title,
@@ -263,8 +374,11 @@ class ShopingListController extends GetxController {
 
   @override
   void onInit() {
-    loadCompletedShopingList();
-    loadInProgressShopingList();
+    Future.delayed(const Duration(seconds: 2), () {
+      loadCompletedShopingList();
+      loadInProgressShopingList();
+    });
+
     super.onInit();
   }
 

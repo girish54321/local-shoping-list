@@ -129,23 +129,23 @@ class DatabaseService {
   }
 
   //* Update Shoping list item
-  Future<void> updateItem(ShoppingListItemModel item) async {
+  Future<void> updateItem(ShoppingListItemModel? item) async {
     final db = await database;
     await db.update(
       shoppingListItemTable,
       {
-        itemColumnName: item.name,
-        itemColumnQuantity: item.quantity,
-        itemColumnStatus: item.status,
-        itemColumnPrice: item.price,
+        itemColumnName: item?.name,
+        itemColumnQuantity: item?.quantity,
+        itemColumnStatus: item?.status,
+        itemColumnPrice: item?.price,
       },
       where: 'id =?',
-      whereArgs: [item.id],
+      whereArgs: [item?.id],
     );
   }
 
   //* Update Shoping list Name and information
-  Future<void> updateShoplist(ShoppingListModel item) async {
+  Future<void> updateShoplist(ShoppingListModel item, int shopListId) async {
     final db = await database;
     await db.update(
       shoppingListTable,
@@ -154,7 +154,7 @@ class DatabaseService {
         shoppingListDescription: item.description,
       },
       where: 'id =?',
-      whereArgs: [item.id],
+      whereArgs: [shopListId],
     );
   }
 

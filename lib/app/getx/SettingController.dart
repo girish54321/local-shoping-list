@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:local_app/Networking/unti/AppConst.dart';
 
 class LocaleWidgetPair {
   Locale locale;
@@ -11,12 +12,28 @@ class LocaleWidgetPair {
 
 class SettingController extends GetxController {
   RxBool isDark = false.obs;
+  RxBool offlineMode = false.obs;
   GetStorage box = GetStorage();
   @override
   void onReady() {
-    print("do you");
+    loadOfflineMode();
     loadThem();
     super.onReady();
+  }
+
+  void loadOfflineMode() {
+    if (box.hasData(OFFLINE_MODE_KEY)) {
+      if (box.read(OFFLINE_MODE_KEY)) {
+        saveOfflineMode(true);
+      } else {
+        saveOfflineMode(false);
+      }
+    }
+  }
+
+  void saveOfflineMode(bool value) {
+    offlineMode.value = value;
+    box.write(OFFLINE_MODE_KEY, value);
   }
 
   //* Local Settings

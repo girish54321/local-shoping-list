@@ -20,9 +20,6 @@ class _CreateshopinglistState extends State<Createshopinglist> {
   TextEditingController infoController = TextEditingController();
   final ShopingListController shopingListController = Get.find();
 
-  final DatabaseService _databaseService = DatabaseService.databaseService;
-  ShopListDataSource apiResponse = ShopListDataSource();
-
   void createList() async {
     if (nameController.text.isEmpty || infoController.text.isEmpty) {
       return;
@@ -38,7 +35,6 @@ class _CreateshopinglistState extends State<Createshopinglist> {
       shoppingList.title!,
       shoppingList.description!,
     );
-    // _databaseService.createShopingList(shoppingList);
   }
 
   void updateShopingList() async {
