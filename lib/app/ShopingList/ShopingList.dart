@@ -11,7 +11,7 @@ import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 
 class ShopingList extends StatefulWidget {
-  final List<ShoppingListModel?>? shoppingList;
+  final List<MainShopListItem?>? shoppingList;
   final bool isCompleted;
   const ShopingList({super.key, required this.isCompleted, this.shoppingList});
 
@@ -46,7 +46,7 @@ class _ShopingListState extends State<ShopingList> {
               : ListView.builder(
                 itemCount: widget.shoppingList?.length ?? 0,
                 itemBuilder: (context, index) {
-                  ShoppingListModel task = widget.shoppingList![index]!;
+                  MainShopListItem item = widget.shoppingList![index]!;
                   return ListTile(
                     leading: Icon(
                       Icons.checklist_rounded,
@@ -54,20 +54,20 @@ class _ShopingListState extends State<ShopingList> {
                     ),
                     onTap: () {
                       if (settingController.offlineMode.value) {
-                        shopingListController.selecteShopListID(task.id, null);
+                        shopingListController.selecteShopListID(item.id, null);
                       } else {
                         shopingListController.selecteShopListID(
                           null,
-                          task.shopId ?? "",
+                          item.shopListId ?? "",
                         );
                       }
                       Helper().goToPage(
                         context: context,
-                        child: AddShopingItem(shoppingListModel: task),
+                        child: AddShopingItem(shoppingListModel: item),
                       );
                     },
-                    title: Text(task.title ?? ""),
-                    subtitle: Text(task.description ?? ""),
+                    title: Text(item.shopListName ?? ""),
+                    subtitle: Text(item.description ?? ""),
                   );
                 },
               ),

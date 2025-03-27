@@ -6,8 +6,8 @@ import 'package:local_app/Networking/modal/main_shop_list.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
+import 'package:local_app/modal/all_shop_list_items.dart';
 import 'package:local_app/modal/operation_response.dart';
-import 'package:local_app/modal/shop_list_item_response.dart';
 
 class SelectedShopList {
   int? localShopListID;
@@ -31,15 +31,17 @@ class ShopingListController extends GetxController {
 
   ShopListDataSource apiResponse = ShopListDataSource();
 
-  Rx<List<ShoppingListModel?>?> completedShopingList =
-      Rx<List<ShoppingListModel>>([]);
-  Rx<List<ShoppingListModel?>?> inprogressShopingList =
-      Rx<List<ShoppingListModel>>([]);
+  Rx<List<MainShopListItem?>?> completedShopingList =
+      Rx<List<MainShopListItem>>([]);
+  Rx<List<MainShopListItem?>?> inprogressShopingList =
+      Rx<List<MainShopListItem>>([]);
 
-  Rx<List<ShoppingListItemModel?>?> completedShopingListItem =
-      Rx<List<ShoppingListItemModel>>([]);
-  Rx<List<ShoppingListItemModel?>?> inprogressShopingListItem =
-      Rx<List<ShoppingListItemModel>>([]);
+  Rx<List<ShopListItems?>?> completedShopingListItem = Rx<List<ShopListItems>>(
+    [],
+  );
+  Rx<List<ShopListItems?>?> inprogressShopingListItem = Rx<List<ShopListItems>>(
+    [],
+  );
 
   Rx<SelectedShopList> selectedState = SelectedShopList().obs;
 
@@ -71,7 +73,7 @@ class ShopingListController extends GetxController {
   void addNewShopList(String title, String description) {
     if (settingController.offlineMode.value) {
       _databaseService.createShopingList(
-        ShoppingListModel(title: title, description: description),
+        MainShopListItem(shopListName: title, description: description),
       );
       Helper().goBack();
       loadCompletedShopingList();
@@ -80,8 +82,8 @@ class ShopingListController extends GetxController {
     }
 
     Future<Result> result = apiResponse.createShopList({
-      "listName": title,
-      "listInfo": description,
+      "shopListName": title,
+      "description": description,
     });
     result.then((value) {
       if (value is SuccessState) {
@@ -159,14 +161,14 @@ class ShopingListController extends GetxController {
     result.then((value) {
       if (value is SuccessState) {
         Helper().hideLoading();
-        var apiItem = value.value as ShopListItemResponse;
+        var apiItem = value.value as AllShopListItems;
         inprogressShopingListItem.value = loopShopListItem(apiItem);
         inprogressShopingListItem.refresh();
       } else {}
     });
   }
 
-  void updateShopListItem(ShoppingListItemModel item) {
+  void updateShopListItem(ShopListItems item) {
     if (settingController.offlineMode.value) {
       _databaseService.updateItem(item);
       getShopingListItemInProgress();
@@ -176,9 +178,11 @@ class ShopingListController extends GetxController {
     }
 
     Future<Result> result = apiResponse.updateShopListItem({
-      "shopListId": selectedState.value.remoteShopListItemID,
-      "listName": item.name,
-      "listInfo": item.name,
+      "itemId": selectedState.value.remoteShopListItemID,
+      "itemName": item.itemName,
+      "description": item.description,
+      "quantity": item.quantity,
+      "price": item.price,
     });
     result.then((value) {
       if (value is SuccessState) {
@@ -193,7 +197,7 @@ class ShopingListController extends GetxController {
     });
   }
 
-  void createShopListItem(ShoppingListItemModel item) {
+  void createShopListItem(ShopListItems item) {
     if (settingController.offlineMode.value) {
       _databaseService.addItemToShopingList(item);
       getShopingListItemInProgress();
@@ -203,8 +207,8 @@ class ShopingListController extends GetxController {
 
     Future<Result> result = apiResponse.createShopListItem({
       "shopListId": selectedState.value.remoteShopListID,
-      "listName": item.name,
-      "listInfo": item.name,
+      "itemName": item.itemName,
+      "description": item.description,
     });
     result.then((value) {
       if (value is SuccessState) {
@@ -218,30 +222,38 @@ class ShopingListController extends GetxController {
     });
   }
 
-  List<ShoppingListItemModel> loopShopListItem(ShopListItemResponse apiItem) {
-    List<ShoppingListItemModel> item = [];
-    for (var i = 0; i < (apiItem.allShopListItem?.length ?? 0); i++) {
-      var shopListItems = apiItem.allShopListItem?[i];
-      var loopItem = ShoppingListItemModel(
-        itemId: shopListItems?.shopListItemsId,
-        name: shopListItems?.name,
-        completed: shopListItems?.state,
+  List<ShopListItems> loopShopListItem(AllShopListItems apiItem) {
+    List<ShopListItems> item = [];
+    for (var i = 0; i < (apiItem.shopListItem?.length ?? 0); i++) {
+      var shopListItems = apiItem.shopListItem?[i];
+      var loopItem = ShopListItems(
+        shopListItemsId: shopListItems?.shopListItemsId,
+        itemName: shopListItems?.itemName,
+        state: shopListItems?.state,
+        description: shopListItems?.description,
+        shopListId: shopListItems?.shopListId,
+        isCompleted: shopListItems?.isCompleted,
+        quantity: shopListItems?.quantity,
+        price: shopListItems?.price,
       );
       item.add(loopItem);
     }
     return item;
   }
 
-  void updateItemState(ShoppingListItemModel? value, bool? state) {
+  void updateItemState(ShopListItems? value, bool? state) {
     //* completeShopingListItem
     if (settingController.offlineMode.value) {
-      _databaseService.completeShopingListItem(value!, state ?? true ? 1 : 0);
+      _databaseService.completeShopingListItem(
+        value!,
+        state! ? "completed" : "not-completed",
+      );
       getShopingListItemInProgress();
       getShopingListItemCompleted();
       return;
     }
     Future<Result> result = apiResponse.updateShopListItemState({
-      "shopListId": value?.itemId,
+      "itemId": value?.shopListItemsId,
       "isCompleted": state,
     });
     result.then((value) {
@@ -275,21 +287,21 @@ class ShopingListController extends GetxController {
     result.then((value) {
       if (value is SuccessState) {
         Helper().hideLoading();
-        var apiItem = value.value as ShopListItemResponse;
+        var apiItem = value.value as AllShopListItems;
         completedShopingListItem.value = loopShopListItem(apiItem);
         completedShopingListItem.refresh();
       } else {}
     });
   }
 
-  List<ShoppingListModel> loopItem(AllShopListMain apiItem) {
-    List<ShoppingListModel> item = [];
-    for (var i = 0; i < (apiItem.allShopLists?.length ?? 0); i++) {
-      var shopListItems = apiItem.allShopLists?[i];
-      var loopItem = ShoppingListModel(
-        shopId: shopListItems?.shopListId,
-        description: shopListItems?.listInfo,
-        title: shopListItems?.listName,
+  List<MainShopListItem> loopItem(AllShopListMain apiItem) {
+    List<MainShopListItem> item = [];
+    for (var i = 0; i < (apiItem.shopList?.length ?? 0); i++) {
+      var shopListItems = apiItem.shopList?[i];
+      var loopItem = MainShopListItem(
+        shopListId: shopListItems?.shopListId,
+        description: shopListItems?.description,
+        shopListName: shopListItems?.shopListName,
       );
       item.add(loopItem);
     }
@@ -343,7 +355,7 @@ class ShopingListController extends GetxController {
     });
   }
 
-  void updateShopList(ShoppingListModel item) {
+  void updateShopList(MainShopListItem item) {
     if (settingController.offlineMode.value) {
       _databaseService.updateShoplist(
         item,
@@ -356,8 +368,8 @@ class ShopingListController extends GetxController {
     }
     Future<Result> result = apiResponse.updateShopList({
       "shopListId": selectedState.value.remoteShopListID ?? "",
-      "listName": item.title,
-      "listInfo": item.description,
+      "shopListName": item.shopListName,
+      "description": item.description,
     });
     result.then((value) {
       if (value is SuccessState) {

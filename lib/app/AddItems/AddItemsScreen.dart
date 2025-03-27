@@ -5,10 +5,10 @@ import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/appInputText.dart';
 import 'package:local_app/Helper/buttons.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
-import 'package:local_app/modal/ShopingListModal.dart';
+import 'package:local_app/modal/all_shop_list_items.dart';
 
 class AddItemsScreen extends StatefulWidget {
-  final ShoppingListItemModel? shopListItem;
+  final ShopListItems? shopListItem;
   const AddItemsScreen({super.key, this.shopListItem});
 
   @override
@@ -29,27 +29,27 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
   }
 
   void updateItem() {
-    var updateItem = ShoppingListItemModel(
+    var updateItem = ShopListItems(
       id: widget.shopListItem?.id ?? 0,
-      name: itemName?.text ?? widget.shopListItem?.name,
+      itemName: itemName?.text ?? widget.shopListItem?.itemName,
       quantity: int.parse(
         quantity?.text ?? widget.shopListItem?.quantity.toString() ?? "0",
       ),
       price: int.parse(
         price?.text ?? widget.shopListItem?.price.toString() ?? "0",
       ),
-      status: widget.shopListItem?.status ?? 0,
+      state: widget.shopListItem?.state,
     );
     shopingListController.updateShopListItem(updateItem);
   }
 
   void _addShopingItem() {
-    var item = ShoppingListItemModel(
+    var item = ShopListItems(
       id: 1,
-      name: itemName?.text,
+      itemName: itemName?.text,
       quantity: int.parse(quantity?.text ?? "0"),
       price: int.parse(price?.text ?? "0"),
-      status: 0,
+      state: widget.shopListItem?.state,
     );
     _databaseService.addItemToShopingList(item);
     updateItems();
@@ -59,7 +59,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
 
   @override
   void initState() {
-    itemName?.text = widget.shopListItem?.name ?? "";
+    itemName?.text = widget.shopListItem?.itemName ?? "";
     quantity?.text = widget.shopListItem?.quantity?.toString() ?? "";
     price?.text = widget.shopListItem?.price?.toString() ?? "";
     super.initState();

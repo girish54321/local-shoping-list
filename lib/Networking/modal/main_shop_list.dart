@@ -57,8 +57,8 @@ class AllShopListMainAllShopLists {
   /*
 {
   "shopListId": "36516533-c7d0-45b4-9f80-6a3b687691a5",
-  "listName": "Dmart List UPDATE",
-  "listInfo": "Dmart List",
+  "shopListName": "Dmart List UPDATE",
+  "description": "Dmart List",
   "state": "not-completed",
   "createdAt": "2025-03-16T14:08:59.430Z",
   "updatedAt": "2025-03-17T01:47:20.893Z",
@@ -78,8 +78,8 @@ class AllShopListMainAllShopLists {
 */
 
   String? shopListId;
-  String? listName;
-  String? listInfo;
+  String? shopListName;
+  String? description;
   String? state;
   String? createdAt;
   String? updatedAt;
@@ -88,8 +88,8 @@ class AllShopListMainAllShopLists {
 
   AllShopListMainAllShopLists({
     this.shopListId,
-    this.listName,
-    this.listInfo,
+    this.shopListName,
+    this.description,
     this.state,
     this.createdAt,
     this.updatedAt,
@@ -98,8 +98,8 @@ class AllShopListMainAllShopLists {
   });
   AllShopListMainAllShopLists.fromJson(Map<String, dynamic> json) {
     shopListId = json['shopListId']?.toString();
-    listName = json['listName']?.toString();
-    listInfo = json['listInfo']?.toString();
+    shopListName = json['shopListName']?.toString();
+    description = json['description']?.toString();
     state = json['state']?.toString();
     createdAt = json['createdAt']?.toString();
     updatedAt = json['updatedAt']?.toString();
@@ -116,8 +116,8 @@ class AllShopListMainAllShopLists {
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['shopListId'] = shopListId;
-    data['listName'] = listName;
-    data['listInfo'] = listInfo;
+    data['shopListName'] = shopListName;
+    data['description'] = description;
     data['state'] = state;
     data['createdAt'] = createdAt;
     data['updatedAt'] = updatedAt;
@@ -140,8 +140,8 @@ class AllShopListMain {
   "allShopLists": [
     {
       "shopListId": "36516533-c7d0-45b4-9f80-6a3b687691a5",
-      "listName": "Dmart List UPDATE",
-      "listInfo": "Dmart List",
+      "shopListName": "Dmart List UPDATE",
+      "description": "Dmart List",
       "state": "not-completed",
       "createdAt": "2025-03-16T14:08:59.430Z",
       "updatedAt": "2025-03-17T01:47:20.893Z",
@@ -162,28 +162,28 @@ class AllShopListMain {
 } 
 */
 
-  List<AllShopListMainAllShopLists?>? allShopLists;
+  List<AllShopListMainAllShopLists?>? shopList;
 
-  AllShopListMain({this.allShopLists});
+  AllShopListMain({this.shopList});
   AllShopListMain.fromJson(Map<String, dynamic> json) {
-    if (json['allShopLists'] != null) {
-      final v = json['allShopLists'];
+    if (json['shopList'] != null) {
+      final v = json['shopList'];
       final arr0 = <AllShopListMainAllShopLists>[];
       v.forEach((v) {
         arr0.add(AllShopListMainAllShopLists.fromJson(v));
       });
-      allShopLists = arr0;
+      shopList = arr0;
     }
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
-    if (allShopLists != null) {
-      final v = allShopLists;
+    if (shopList != null) {
+      final v = shopList;
       final arr0 = [];
       v!.forEach((v) {
         arr0.add(v!.toJson());
       });
-      data['allShopLists'] = arr0;
+      data['shopList'] = arr0;
     }
     return data;
   }

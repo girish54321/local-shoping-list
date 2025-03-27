@@ -12,6 +12,7 @@ class InputText extends StatefulWidget {
   final String? errorText;
   final Function(String)? onChnaged;
   final Function(String?)? onSaved;
+  final Function()? onEditingComplete;
   final FormFieldValidator? validator;
   final TextInputAction? textInputAction;
 
@@ -31,6 +32,7 @@ class InputText extends StatefulWidget {
     this.validator,
     this.onSaved,
     this.textInputAction,
+    this.onEditingComplete,
   });
 
   @override
@@ -47,6 +49,7 @@ class _InputTextState extends State<InputText> {
         textInputAction: widget.textInputAction,
         keyboardType: widget.textInputType,
         focusNode: widget.focusNode,
+        onEditingComplete: widget.onEditingComplete,
         onChanged: widget.onChnaged,
         onSaved: widget.onSaved,
         onFieldSubmitted: widget.changeFous,

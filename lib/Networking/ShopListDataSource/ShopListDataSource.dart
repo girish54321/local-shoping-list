@@ -6,8 +6,8 @@ import 'package:local_app/Networking/unti/ReqResClient.dart';
 import 'package:local_app/Networking/unti/api_path.dart';
 import 'package:local_app/Networking/unti/request_type.dart';
 import 'package:local_app/Networking/unti/result.dart';
+import 'package:local_app/modal/all_shop_list_items.dart';
 import 'package:local_app/modal/operation_response.dart';
-import 'package:local_app/modal/shop_list_item_response.dart';
 
 class ShopListDataSource {
   ReqResClient client = ReqResClient(Client());
@@ -96,8 +96,8 @@ class ShopListDataSource {
         params: params,
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<ShopListItemResponse>.success(
-          ShopListItemResponse.fromJson(json.decode(response.body)),
+        incomingData = Result<AllShopListItems>.success(
+          AllShopListItems.fromJson(json.decode(response.body)),
         );
         return incomingData;
       } else {

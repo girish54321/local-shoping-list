@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/instance_manager.dart';
-import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/appInputText.dart';
 import 'package:local_app/Helper/buttons.dart';
-import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 
 class Createshopinglist extends StatefulWidget {
-  final ShoppingListModel? updateItem;
+  final MainShopListItem? updateItem;
   const Createshopinglist({super.key, this.updateItem});
 
   @override
@@ -24,15 +22,15 @@ class _CreateshopinglistState extends State<Createshopinglist> {
     if (nameController.text.isEmpty || infoController.text.isEmpty) {
       return;
     }
-    final ShoppingListModel shoppingList = ShoppingListModel(
-      title: nameController.text,
+    final MainShopListItem shoppingList = MainShopListItem(
+      shopListName: nameController.text,
       description: infoController.text,
     );
     if (widget.updateItem != null) {
       return;
     }
     shopingListController.addNewShopList(
-      shoppingList.title!,
+      shoppingList.shopListName!,
       shoppingList.description!,
     );
   }
@@ -45,8 +43,8 @@ class _CreateshopinglistState extends State<Createshopinglist> {
       return;
     }
 
-    final ShoppingListModel updatedShoppingList = ShoppingListModel(
-      title: nameController.text,
+    final MainShopListItem updatedShoppingList = MainShopListItem(
+      shopListName: nameController.text,
       description: infoController.text,
     );
 
@@ -55,7 +53,7 @@ class _CreateshopinglistState extends State<Createshopinglist> {
 
   @override
   void initState() {
-    nameController.text = widget.updateItem?.title ?? "";
+    nameController.text = widget.updateItem?.shopListName ?? "";
     infoController.text = widget.updateItem?.description ?? "";
     super.initState();
   }
