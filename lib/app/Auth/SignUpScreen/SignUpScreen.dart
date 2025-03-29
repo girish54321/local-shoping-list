@@ -5,25 +5,23 @@ import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/AuthDataSource/AuthDataSource.dart';
 import 'package:local_app/Networking/modal/userLoginModal.dart';
 import 'package:local_app/Networking/unti/result.dart';
-import 'package:local_app/app/Auth/LoginScreen/loginScreenUI.dart';
-import 'package:local_app/app/Auth/SignUpScreen/SignUpScreen.dart';
-import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/app/Auth/SignUpScreen/SignUpScreenUI.dart';
 import 'package:local_app/app/homeScreen/MainHomeScreen.dart';
 
-class LoginScreen extends StatefulWidget {
-  LoginScreen({Key? key}) : super(key: key);
+class SignUpScreen extends StatefulWidget {
+  SignUpScreen({Key? key}) : super(key: key);
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
-  final ShopingListController shopingListController = Get.find();
+  final firstNameController = TextEditingController();
+  final lastNameNameController = TextEditingController();
 
   bool validEmail = false, validPassword = false, rememberMe = true;
 
@@ -49,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  Future<void> loginUser() async {
+  Future<void> signUpUser() async {
     GetStorage box = GetStorage();
     if (_formKey.currentState!.validate()) {
       Helper().dismissKeyBoard(context);
@@ -59,16 +57,17 @@ class _LoginScreenState extends State<LoginScreen> {
       var parameter = {
         "email": emailController.text,
         "password": passwordController.text,
+        "firstName": firstNameController.text,
+        "lastName": lastNameNameController.text,
       };
 
-      Future<Result> result = apiResponse.userLogin(parameter);
+      Future<Result> result = apiResponse.signUpUser(parameter);
       result.then((value) {
         if (value is SuccessState) {
           Helper().hideLoading();
           var res = value.value as UserLoginResponse;
           box.write('token', res.accessToken);
           Get.off(MainHomeScreen());
-          shopingListController.loadCompletedShopingList();
         }
       });
     } else {
@@ -78,26 +77,30 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void createAccount() {
     Helper().dismissKeyBoard(context);
-    Helper().goToPage(context: context, child: SignUpScreen());
+    // Helper().goToPage(context: context, child: SignUpScreen());
   }
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    lastNameNameController.dispose();
+    firstNameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return LoginScreenUI(
+    return SignUpScreenUI(
       emailController: emailController,
+      lastNameNameController: lastNameNameController,
+      firstNameController: firstNameController,
       passwordController: passwordController,
       changeRemember: changeRemember,
       rememberMe: rememberMe,
       formKey: _formKey,
       createAccount: createAccount,
-      loginUser: loginUser,
+      signUpUser: signUpUser,
     );
   }
 }

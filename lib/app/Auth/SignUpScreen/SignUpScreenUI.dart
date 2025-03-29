@@ -4,24 +4,28 @@ import 'package:local_app/Helper/appInputText.dart';
 import 'package:local_app/Helper/buttons.dart';
 import 'package:rules/rules.dart';
 
-class LoginScreenUI extends StatelessWidget {
+class SignUpScreenUI extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
+  final TextEditingController firstNameController;
+  final TextEditingController lastNameNameController;
   final GlobalKey<FormState> formKey;
-  final Function loginUser;
+  final Function signUpUser;
   final Function createAccount;
   final bool rememberMe;
   final Function(bool) changeRemember;
 
-  const LoginScreenUI({
+  const SignUpScreenUI({
     super.key,
     required this.emailController,
     required this.formKey,
-    required this.loginUser,
+    required this.signUpUser,
     required this.createAccount,
     required this.passwordController,
     required this.rememberMe,
     required this.changeRemember,
+    required this.firstNameController,
+    required this.lastNameNameController,
   });
 
   @override
@@ -43,7 +47,7 @@ class LoginScreenUI extends StatelessWidget {
                     AppBar(
                       title: FadeInRight(
                         duration: const Duration(milliseconds: 500),
-                        child: const Text("Login"),
+                        child: const Text("Sign Up"),
                       ),
                     ),
                     Column(
@@ -55,9 +59,8 @@ class LoginScreenUI extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text("LogIn"),
+                                const Text("Sign Up"),
                                 const SizedBox(height: 4),
-                                const Text("Enter your Number"),
                                 InputText(
                                   textInputType: TextInputType.emailAddress,
                                   textEditingController: emailController,
@@ -71,6 +74,42 @@ class LoginScreenUI extends StatelessWidget {
                                     );
                                     if (emailRule.hasError) {
                                       return emailRule.error;
+                                    } else {
+                                      return null;
+                                    }
+                                  },
+                                ),
+                                InputText(
+                                  textInputType: TextInputType.name,
+                                  textEditingController: firstNameController,
+                                  hint: "First Name",
+                                  validator: (text) {
+                                    final firstNameRule = Rule(
+                                      text,
+                                      name: 'First Name',
+                                      isRequired: true,
+                                      minLength: 2,
+                                    );
+                                    if (firstNameRule.hasError) {
+                                      return firstNameRule.error;
+                                    } else {
+                                      return null;
+                                    }
+                                  },
+                                ),
+                                InputText(
+                                  textInputType: TextInputType.name,
+                                  textEditingController: lastNameNameController,
+                                  hint: "Last Name",
+                                  validator: (text) {
+                                    final lastNameRule = Rule(
+                                      text,
+                                      name: 'Last Name',
+                                      isRequired: true,
+                                      minLength: 2,
+                                    );
+                                    if (lastNameRule.hasError) {
+                                      return lastNameRule.error;
                                     } else {
                                       return null;
                                     }
@@ -96,27 +135,15 @@ class LoginScreenUI extends StatelessWidget {
                                 ),
                                 AppButton(
                                   function: () {
-                                    loginUser();
+                                    signUpUser();
                                   },
                                   child: const Center(
                                     child: Text(
-                                      "Log In",
+                                      "Sign Up",
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                       ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 18),
-                                Center(
-                                  child: TextButton(
-                                    onPressed: () {
-                                      createAccount();
-                                    },
-                                    child: Text(
-                                      "Dont have an Account? Sign Up",
-                                      style: TextStyle(fontSize: 16),
                                     ),
                                   ),
                                 ),

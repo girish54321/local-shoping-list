@@ -450,12 +450,16 @@ class ShopingListController extends GetxController {
     });
   }
 
+  void loadEverything() {
+    loadCompletedShopingList();
+    loadInProgressShopingList();
+    getMySharedList();
+  }
+
   @override
   void onInit() {
     Future.delayed(const Duration(seconds: 2), () {
-      loadCompletedShopingList();
-      loadInProgressShopingList();
-      getMySharedList();
+      loadEverything();
     });
 
     super.onInit();

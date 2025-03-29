@@ -1,5 +1,6 @@
 enum APIPath {
   login,
+  signUp,
   getShopList,
   createList,
   getShopingLisItems,
@@ -49,6 +50,8 @@ class APIPathHelper {
         return "/shoplist/user-list";
       case APIPath.shareListWithUser:
         return "/share-shop-list";
+      case APIPath.signUp:
+        return "auth/signup";
     }
   }
 }

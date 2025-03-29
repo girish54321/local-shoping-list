@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:local_app/Networking/unti/AppConst.dart';
 import 'package:local_app/app/Auth/LoginScreen/loginScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
+import 'package:local_app/app/getx/ShopingListController.dart';
 
 class SettingsScreen extends StatefulWidget {
   SettingsScreen({Key? key}) : super(key: key);
@@ -15,6 +16,9 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final SettingController settingController = GetInstance()
       .put<SettingController>(SettingController());
+
+  final ShopingListController shopingListController = GetInstance()
+      .put<ShopingListController>(ShopingListController());
   GetStorage box = GetStorage();
 
   void logout() {
@@ -33,7 +37,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           trailing: Obx(
             (() => Switch(
               value: settingController.offlineMode.value,
-              onChanged: (bool val) => settingController.saveOfflineMode(val),
+              onChanged: (bool val) {
+                settingController.saveOfflineMode(val);
+                shopingListController.loadEverything();
+              },
             )),
           ),
         ),
@@ -52,6 +59,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           );
         }),
+        ListTile(
+          leading: Icon(Icons.exit_to_app),
+          title: Text("Logout"),
+          onTap: logout,
+        ),
       ],
     );
   }
