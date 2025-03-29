@@ -310,6 +310,7 @@ class ShopingListController extends GetxController {
         shopListId: shopListItems?.shopListId,
         description: shopListItems?.description,
         shopListName: shopListItems?.shopListName,
+        isCompleted: shopListItems?.isCompleted,
       );
       item.add(loopItem);
     }

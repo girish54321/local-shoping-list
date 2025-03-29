@@ -52,6 +52,10 @@ class _ShopingListState extends State<ShopingList> {
                       Icons.checklist_rounded,
                       color: widget.isCompleted ? Colors.green : Colors.orange,
                     ),
+                    trailing:
+                        item.isCompleted!
+                            ? Icon(Icons.check_outlined, color: Colors.green)
+                            : null,
                     onTap: () {
                       if (settingController.offlineMode.value) {
                         shopingListController.selecteShopListID(item.id, null);
