@@ -24,41 +24,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Settings"),
-        actions: [IconButton(icon: Icon(Icons.logout), onPressed: logout)],
-      ),
-      body: Column(
-        children: [
-          ListTile(
-            leading: Icon(Icons.network_locked),
-            title: Text("Offline Mode"),
-            subtitle: Text("Use app Offline only"),
-            trailing: Obx(
-              (() => Switch(
-                value: settingController.offlineMode.value,
-                onChanged: (bool val) => settingController.saveOfflineMode(val),
-              )),
-            ),
+    return Column(
+      children: [
+        ListTile(
+          leading: Icon(Icons.network_locked),
+          title: Text("Offline Mode"),
+          subtitle: Text("Use app Offline only"),
+          trailing: Obx(
+            (() => Switch(
+              value: settingController.offlineMode.value,
+              onChanged: (bool val) => settingController.saveOfflineMode(val),
+            )),
           ),
-          Obx(() {
-            return ListTile(
-              leading: Icon(
-                settingController.isDark.value
-                    ? Icons.dark_mode
-                    : Icons.light_mode,
-              ),
-              title: Text("Theme"),
-              subtitle: Text("Change app theme"),
-              trailing: Switch(
-                value: settingController.isDark.value,
-                onChanged: (bool _) => settingController.toggleThem(),
-              ),
-            );
-          }),
-        ],
-      ),
+        ),
+        Obx(() {
+          return ListTile(
+            leading: Icon(
+              settingController.isDark.value
+                  ? Icons.dark_mode
+                  : Icons.light_mode,
+            ),
+            title: Text("Theme"),
+            subtitle: Text("Change app theme"),
+            trailing: Switch(
+              value: settingController.isDark.value,
+              onChanged: (bool _) => settingController.toggleThem(),
+            ),
+          );
+        }),
+      ],
     );
   }
 }

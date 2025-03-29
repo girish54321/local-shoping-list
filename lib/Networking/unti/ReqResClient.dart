@@ -27,6 +27,8 @@ class ReqResClient {
       case RequestType.GET:
         var uri =
             _baseUrl + path + ((params != null) ? queryParameters(params) : "");
+        print("My request");
+        print(uri);
         return _client.get(Uri.parse(uri), headers: headers);
       case RequestType.POST:
         return _client.post(
@@ -46,7 +48,10 @@ class ReqResClient {
   }
 
   String queryParameters(Map<String, String> params) {
-    final jsonString = Uri(queryParameters: params);
-    return '?${jsonString.query}';
+    if (params != null) {
+      final jsonString = Uri(queryParameters: params);
+      return '?${jsonString.query}';
+    }
+    return '';
   }
 }

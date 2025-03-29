@@ -53,8 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       AuthDataSource apiResponse = AuthDataSource();
       var parameter = {
-        "email": "parategirish50@gmail.com",
-        "password": "123456",
+        "email": emailController.text,
+        "password": passwordController.text,
       };
 
       Future<Result> result = apiResponse.userLogin(parameter);

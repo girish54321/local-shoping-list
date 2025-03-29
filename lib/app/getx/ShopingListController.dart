@@ -3,6 +3,7 @@ import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/modal/main_shop_list.dart';
+import 'package:local_app/Networking/modal/shared_user_response.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
@@ -43,7 +44,12 @@ class ShopingListController extends GetxController {
     [],
   );
 
+  Rx<List<SharedUserList?>> sharedUserList = Rx<List<SharedUserList>>([]);
+
+  Rx<List<SharedUserList?>> mySharedList = Rx<List<SharedUserList>>([]);
+
   Rx<SelectedShopList> selectedState = SelectedShopList().obs;
+  RxBool isOwner = RxBool(false);
 
   void selecteShopListID(int? selecteLocalListID, String? selectRemoteListID) {
     if (selecteLocalListID != null) {
@@ -164,6 +170,7 @@ class ShopingListController extends GetxController {
         var apiItem = value.value as AllShopListItems;
         inprogressShopingListItem.value = loopShopListItem(apiItem);
         inprogressShopingListItem.refresh();
+        getSharedUserList();
       } else {}
     });
   }
@@ -288,6 +295,7 @@ class ShopingListController extends GetxController {
       if (value is SuccessState) {
         Helper().hideLoading();
         var apiItem = value.value as AllShopListItems;
+        isOwner.value = apiItem.isOwner ?? true;
         completedShopingListItem.value = loopShopListItem(apiItem);
         completedShopingListItem.refresh();
       } else {}
@@ -384,11 +392,70 @@ class ShopingListController extends GetxController {
     });
   }
 
+  void getSharedUserList() {
+    if (settingController.offlineMode.value) {
+      //* Load Local data from local database
+      // var data = await _databaseService.getSharedUserList();
+      // sharedUserList.value = data;
+      // sharedUserList.refresh();
+      return;
+    }
+    Future<Result> result = apiResponse.getSharedUserList(
+      selectedState.value.remoteShopListID,
+    );
+    result.then((value) {
+      if (value is SuccessState) {
+        Helper().hideLoading();
+        var apiItem = value.value as SharedUserListResponse;
+        sharedUserList.value = apiItem.sharedUserList!;
+        print(apiItem..sharedUserList![0]!.shopListId);
+        sharedUserList.refresh();
+      } else {}
+    });
+  }
+
+  void getMySharedList() {
+    Future<Result> result = apiResponse.getMySharedUserList();
+    result.then((value) {
+      if (value is SuccessState) {
+        Helper().hideLoading();
+        var apiItem = value.value as SharedUserListResponse;
+        mySharedList.value = apiItem.sharedUserList!;
+        mySharedList.refresh();
+      } else {}
+    });
+  }
+
+  void shareShopList(String? userId) {
+    if (settingController.offlineMode.value) {
+      //* Save shared user list to local database
+      // _databaseService.saveSharedUserList(sharedUserList.value);
+      return;
+    }
+    Future<Result> result = apiResponse.shareShopList({
+      "shopListId": selectedState.value.remoteShopListID,
+      "sharedUserId": userId,
+    });
+    result.then((value) {
+      if (value is SuccessState) {
+        Helper().hideLoading();
+        var res = value.value as OperationResponse;
+        if (res.success == true) {
+          //* Load shared user list from local database
+          // getSharedUserList();
+          // Helper().goBack();
+          getSharedUserList();
+        }
+      }
+    });
+  }
+
   @override
   void onInit() {
     Future.delayed(const Duration(seconds: 2), () {
       loadCompletedShopingList();
       loadInProgressShopingList();
+      getMySharedList();
     });
 
     super.onInit();

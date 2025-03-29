@@ -9,6 +9,11 @@ enum APIPath {
   deleteShopList,
   updateShopListItem,
   updateShopList,
+  getSharedUserList,
+  getMySharedList,
+  shareShopList,
+  getUserEmailList,
+  shareListWithUser,
 }
 
 class APIPathHelper {
@@ -34,6 +39,16 @@ class APIPathHelper {
         return "shoplist/update-shop-item";
       case APIPath.updateShopList:
         return "shoplist/update-shop-list";
+      case APIPath.getSharedUserList:
+        return "/shoplist/share-shop-list/";
+      case APIPath.getMySharedList:
+        return "/shoplist/share-shop-list";
+      case APIPath.shareShopList:
+        return "shoplist/share-shop-list";
+      case APIPath.getUserEmailList:
+        return "/shoplist/user-list";
+      case APIPath.shareListWithUser:
+        return "/share-shop-list";
     }
   }
 }

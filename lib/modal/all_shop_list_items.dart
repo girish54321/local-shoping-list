@@ -87,6 +87,8 @@ class SharedUserList {
   String? createdAt;
   String? updatedAt;
   AllShopListItemsSharedWithUser? user;
+  //* New Obj
+  MainShopListItem? shopListModal;
 
   SharedUserList({
     this.id,
@@ -95,6 +97,7 @@ class SharedUserList {
     this.createdAt,
     this.updatedAt,
     this.user,
+    this.shopListModal,
   });
   SharedUserList.fromJson(Map<String, dynamic> json) {
     id = json['id']?.toInt();
@@ -106,6 +109,10 @@ class SharedUserList {
         (json['user'] != null)
             ? AllShopListItemsSharedWithUser.fromJson(json['user'])
             : null;
+    shopListModal =
+        (json['shopList'] != null)
+            ? MainShopListItem.fromJson(json['shopList'])
+            : null;
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -116,6 +123,9 @@ class SharedUserList {
     data['updatedAt'] = updatedAt;
     if (user != null) {
       data['user'] = user!.toJson();
+    }
+    if (shopListModal != null) {
+      data['shopList'] = shopListModal!.toJson();
     }
     return data;
   }
@@ -262,8 +272,14 @@ class AllShopListItems {
   MainShopListItem? shopList;
   List<ShopListItems?>? shopListItem;
   List<SharedUserList?>? sharedWith;
+  bool? isOwner;
 
-  AllShopListItems({this.shopList, this.shopListItem, this.sharedWith});
+  AllShopListItems({
+    this.shopList,
+    this.shopListItem,
+    this.sharedWith,
+    this.isOwner,
+  });
   AllShopListItems.fromJson(Map<String, dynamic> json) {
     shopList =
         (json['shopList'] != null)
@@ -285,6 +301,7 @@ class AllShopListItems {
       });
       sharedWith = arr0;
     }
+    isOwner = json['isOwner'];
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -307,6 +324,7 @@ class AllShopListItems {
       });
       data['sharedWith'] = arr0;
     }
+    data['isOwner'] = isOwner;
     return data;
   }
 }
