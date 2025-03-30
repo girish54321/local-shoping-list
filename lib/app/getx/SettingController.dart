@@ -21,6 +21,10 @@ class SettingController extends GetxController {
     super.onReady();
   }
 
+  void skipLogin() {
+    saveOfflineMode(true);
+  }
+
   void loadOfflineMode() {
     if (box.hasData(OFFLINE_MODE_KEY)) {
       if (box.read(OFFLINE_MODE_KEY)) {
@@ -48,7 +52,6 @@ class SettingController extends GetxController {
         Get.changeThemeMode(ThemeMode.light);
       }
     } else {
-      print("No Them car");
       isDark.value = false;
       saveThemSetting(false);
       Get.changeThemeMode(ThemeMode.light);
@@ -56,7 +59,6 @@ class SettingController extends GetxController {
   }
 
   void saveThemSetting(bool value) {
-    print("Save the team");
     box.write("darkThem", value);
   }
 

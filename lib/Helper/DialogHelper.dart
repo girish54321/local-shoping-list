@@ -1,21 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:local_app/Networking/modal/error_modal.dart';
 
 class DialogHelper {
   //show error dialog
   static void showErrorDialog({
-    String title = 'Error',
+    String? title = 'Error',
     String? description = 'Something went wrong',
+    ErrorModalError? error,
   }) {
     Get.dialog(
       GetPlatform.isAndroid
           ? AlertDialog(
-            title: Text(title),
-            content: Text(description ?? ""),
+            title: Text("Error: ${error?.status}"),
+            content: Text(error?.message ?? description!),
             actions: [
               TextButton(
-                child: const Text('Approve'),
+                child: const Text('Okay'),
                 onPressed: () {
                   Get.until((route) => !Get.isDialogOpen!);
                 },
@@ -24,11 +26,11 @@ class DialogHelper {
             scrollable: true,
           )
           : CupertinoAlertDialog(
-            title: Text(title),
-            content: Text(description ?? ""),
+            title: Text("Error: ${error?.status}"),
+            content: Text(error?.message ?? description!),
             actions: [
               TextButton(
-                child: const Text('Approve'),
+                child: const Text('Okay'),
                 onPressed: () {
                   Get.until((route) => !Get.isDialogOpen!);
                 },

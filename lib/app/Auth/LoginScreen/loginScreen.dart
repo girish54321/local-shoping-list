@@ -7,6 +7,7 @@ import 'package:local_app/Networking/modal/userLoginModal.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/Auth/LoginScreen/loginScreenUI.dart';
 import 'package:local_app/app/Auth/SignUpScreen/SignUpScreen.dart';
+import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/app/homeScreen/MainHomeScreen.dart';
 
@@ -24,6 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
 
   final ShopingListController shopingListController = Get.find();
+  final SettingController settingController = Get.find();
 
   bool validEmail = false, validPassword = false, rememberMe = true;
 
@@ -76,6 +78,12 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void skipLogin() {
+    Helper().dismissKeyBoard(context);
+    settingController.skipLogin();
+    Get.off(MainHomeScreen());
+  }
+
   void createAccount() {
     Helper().dismissKeyBoard(context);
     Helper().goToPage(context: context, child: SignUpScreen());
@@ -98,6 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
       formKey: _formKey,
       createAccount: createAccount,
       loginUser: loginUser,
+      skipLogin: skipLogin,
     );
   }
 }

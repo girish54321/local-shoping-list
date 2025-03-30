@@ -11,6 +11,7 @@ import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart'
 import 'package:local_app/app/AddItems/AddItemsScreen.dart';
 import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
 import 'package:local_app/app/ShareUserListScreen/ShareUserListScreen.dart';
+import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:local_app/modal/all_shop_list_items.dart';
@@ -34,7 +35,9 @@ class _AddShopingItemState extends State<AddShopingItem>
     with TickerProviderStateMixin {
   late TabController _tabController;
   final DatabaseService databaseService = DatabaseService.databaseService;
+
   final ShopingListController shopingListController = Get.find();
+  final SettingController settingController = Get.find();
 
   TextEditingController? itemName = TextEditingController();
   ShopListDataSource apiResponse = ShopListDataSource();
@@ -245,6 +248,11 @@ class _AddShopingItemState extends State<AddShopingItem>
   Widget openPopUpMenu(ShopListItems? item) {
     return PopupMenuButton<String>(
       onSelected: (val) {
+        var isOwner = shopingListController.isOwner.value;
+        var offline = settingController.offlineMode.value;
+        if (!isOwner || offline) {
+          return;
+        }
         if (val == "edit") {
           if (item != null) {
             shopingListController.selecteListItemStateID(
@@ -298,23 +306,22 @@ class _AddShopingItemState extends State<AddShopingItem>
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      var isOwner = shopingListController.isOwner.value;
+      var isOwner =
+          shopingListController.isOwner.value ||
+          settingController.offlineMode.value;
       return Scaffold(
         appBar: AppBar(
           title: Text('Add Shopping Item'),
-          actions:
-              isOwner == true
-                  ? [
-                    //TODO: Keeping this spmiple
-                    // IconButton(
-                    //   onPressed: () {
-                    //     Helper().goToPage(context: context, child: AddItemsScreen());
-                    //   },
-                    //   icon: Icon(Icons.add),
-                    // ),
-                    openPopUpMenu(null),
-                  ]
-                  : [],
+          actions: [
+            //TODO: Keeping this spmiple
+            // IconButton(
+            //   onPressed: () {
+            //     Helper().goToPage(context: context, child: AddItemsScreen());
+            //   },
+            //   icon: Icon(Icons.add),
+            // ),
+            openPopUpMenu(null),
+          ],
           bottom: TabBar(
             controller: _tabController,
             onTap: (index) {

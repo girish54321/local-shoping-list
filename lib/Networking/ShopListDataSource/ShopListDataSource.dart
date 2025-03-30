@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:local_app/Helper/DialogHelper.dart';
+import 'package:local_app/Networking/modal/error_modal.dart';
 import 'package:local_app/Networking/modal/main_shop_list.dart';
 import 'package:local_app/Networking/modal/shared_user_response.dart';
 import 'package:local_app/Networking/unti/ReqResClient.dart';
@@ -28,7 +29,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -53,7 +55,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -78,7 +81,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -103,7 +107,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -128,7 +133,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -153,7 +159,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -177,7 +184,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -202,7 +210,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -227,7 +236,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -251,7 +261,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -275,7 +286,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -300,7 +312,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -325,7 +338,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }
@@ -350,7 +364,8 @@ class ShopListDataSource {
         );
         return incomingData;
       } else {
-        DialogHelper.showErrorDialog(description: response.body.toString());
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
         incomingData = Result.error(response.statusCode);
         return incomingData;
       }

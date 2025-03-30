@@ -10,6 +10,7 @@ class LoginScreenUI extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final Function loginUser;
   final Function createAccount;
+  final Function skipLogin;
   final bool rememberMe;
   final Function(bool) changeRemember;
 
@@ -22,6 +23,7 @@ class LoginScreenUI extends StatelessWidget {
     required this.passwordController,
     required this.rememberMe,
     required this.changeRemember,
+    required this.skipLogin,
   });
 
   @override
@@ -45,6 +47,14 @@ class LoginScreenUI extends StatelessWidget {
                         duration: const Duration(milliseconds: 500),
                         child: const Text("Login"),
                       ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            skipLogin();
+                          },
+                          child: Text("Skip & Use Offline"),
+                        ),
+                      ],
                     ),
                     Column(
                       children: [

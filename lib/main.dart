@@ -45,7 +45,9 @@ class _MyAppState extends State<MyApp> {
             GetPage(
               name: '/',
               page: () {
-                return box.hasData(JWT_KEY) ? MainHomeScreen() : LoginScreen();
+                return box.hasData(JWT_KEY) || box.hasData(OFFLINE_MODE_KEY)
+                    ? MainHomeScreen()
+                    : LoginScreen();
               },
             ),
           ],
