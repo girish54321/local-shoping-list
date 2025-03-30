@@ -61,9 +61,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           ListTile(
-            onTap: () {
-              Helper().goToPage(context: context, child: SavedItemsList());
-            },
+            onTap:
+                settingController.offlineMode.value == true
+                    ? null
+                    : () {
+                      Helper().goToPage(
+                        context: context,
+                        child: SavedItemsList(),
+                      );
+                    },
             leading: Icon(Icons.checklist_outlined),
             title: Text("Saved Items"),
             subtitle:

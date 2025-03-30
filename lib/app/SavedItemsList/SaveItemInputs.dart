@@ -37,7 +37,7 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
       nameTextEditingController.text = widget.item?.itemName ?? "";
       quantityTextEditingController.text =
           widget.item?.quantity?.toString() ?? "";
-      priceTextEditingController.text = "2";
+      priceTextEditingController.text = widget.item?.price?.toString() ?? "";
     }
     setState(() {
       inputState = widget.item;
