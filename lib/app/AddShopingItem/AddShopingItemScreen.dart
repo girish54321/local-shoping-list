@@ -5,6 +5,7 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/state_manager.dart';
 import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
+import 'package:local_app/Helper/auto-complet.dart';
 import 'package:local_app/Helper/no_dat_view.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
@@ -15,6 +16,7 @@ import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:local_app/modal/all_shop_list_items.dart';
+import 'package:local_app/modal/common_items.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 
 class AppMenuItem {
@@ -39,7 +41,6 @@ class _AddShopingItemState extends State<AddShopingItem>
   final ShopingListController shopingListController = Get.find();
   final SettingController settingController = Get.find();
 
-  TextEditingController? itemName = TextEditingController();
   ShopListDataSource apiResponse = ShopListDataSource();
 
   //* Reload  List
@@ -50,27 +51,14 @@ class _AddShopingItemState extends State<AddShopingItem>
     initialRefresh: false,
   );
 
-  final countries = [
-    'Argentina',
-    'Australia',
-    'Brazil',
-    'Canada',
-    'China',
-    'France',
-    'Germany',
-    'India',
-    'Indonesia',
-    'Italy',
-  ];
-
-  void _addShopingItem(String itemName) {
+  void _addShopingItem(CommonItemsItems commonItems) {
     var item = ShopListItems(
       id: shopingListController.selectedState.value.localShopListID,
       shopListItemsId:
           shopingListController.selectedState.value.remoteShopListID,
-      itemName: itemName,
-      quantity: 1,
-      price: 0,
+      itemName: commonItems.itemName,
+      quantity: commonItems.quantity,
+      price: commonItems.price,
       state: 'not-completed',
     );
     shopingListController.createShopListItem(item);
@@ -95,7 +83,6 @@ class _AddShopingItemState extends State<AddShopingItem>
   @override
   void dispose() {
     _tabController.dispose();
-    itemName?.dispose();
     inprogressRefreshController.dispose();
     completedRefreshController.dispose();
     super.dispose();
@@ -139,78 +126,11 @@ class _AddShopingItemState extends State<AddShopingItem>
                   if (isCompletedList) {
                     return SizedBox();
                   }
-                  return ListTile(
-                    title: Autocomplete<String>(
-                      fieldViewBuilder: (
-                        context,
-                        controller,
-                        focusNode,
-                        onEditingComplete,
-                      ) {
-                        itemName = controller;
-                        return TextField(
-                          enabled: isOwner,
-                          controller: itemName,
-                          focusNode: focusNode,
-                          onEditingComplete: () {
-                            onEditingComplete();
-                          },
-                          decoration: InputDecoration(
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                FocusScope.of(context).unfocus();
-                              },
-                              icon: Icon(Icons.close),
-                            ),
-                            hintText: "Search item...",
-                            hintStyle: TextStyle(color: Colors.grey[400]),
-                          ),
-                          onSubmitted: (value) {
-                            _addShopingItem(value);
-                            FocusScope.of(context).unfocus();
-                            itemName?.text = "";
-                          },
-                        );
-                      },
-                      optionsViewBuilder: (context, onSelected, options) {
-                        return Align(
-                          alignment: Alignment.topLeft,
-                          child: Material(
-                            elevation: 4,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(maxHeight: 200),
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: options.length,
-                                itemBuilder: (context, index) {
-                                  final String option = options.elementAt(
-                                    index,
-                                  );
-                                  return ListTile(
-                                    title: Text(option),
-                                    onTap: () => onSelected(option),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      optionsBuilder: (TextEditingValue textEditingValue) {
-                        if (textEditingValue.text.isEmpty) {
-                          return countries;
-                        }
-
-                        return countries.where(
-                          (country) => country.toLowerCase().contains(
-                            textEditingValue.text.toLowerCase(),
-                          ),
-                        );
-                      },
-                      onSelected: (suggestion) {
-                        // handle user selection of a country
-                      },
-                    ),
+                  return AutoComplet(
+                    isOwner: isOwner,
+                    onItemTap: (item) {
+                      _addShopingItem(item);
+                    },
                   );
                 }
                 ShopListItems? item =
@@ -250,7 +170,15 @@ class _AddShopingItemState extends State<AddShopingItem>
       onSelected: (val) {
         var isOwner = shopingListController.isOwner.value;
         var offline = settingController.offlineMode.value;
-        if (!isOwner || offline) {
+
+        var allowAction =
+            offline
+                ? true
+                : isOwner
+                ? true
+                : false;
+
+        if (!allowAction) {
           return;
         }
         if (val == "edit") {
@@ -306,9 +234,15 @@ class _AddShopingItemState extends State<AddShopingItem>
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      var isOwner =
-          shopingListController.isOwner.value ||
-          settingController.offlineMode.value;
+      var isOwner = shopingListController.isOwner.value;
+      var offline = settingController.offlineMode.value;
+
+      var allowAction =
+          offline
+              ? true
+              : isOwner
+              ? true
+              : false;
       return Scaffold(
         appBar: AppBar(
           title: Text('Add Shopping Item'),
@@ -343,22 +277,22 @@ class _AddShopingItemState extends State<AddShopingItem>
         ),
         bottomNavigationBar: SafeArea(
           child: ListTile(
-            title: Text("Shared with"),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Helper().goToPage(
-                      context: context,
-                      child: ShareUserListScreen(),
-                    );
-                  },
-                  child: CircleAvatar(child: Text("GP")),
-                ),
-                CircleAvatar(child: Text("GP")),
-                CircleAvatar(child: Text("GP")),
-              ],
+            title: Text("Shared with others"),
+            subtitle:
+                allowAction
+                    ? Text("Share your list with others!")
+                    : Text("Not available in offline mode!"),
+            trailing: FloatingActionButton(
+              onPressed:
+                  !offline
+                      ? () {
+                        Helper().goToPage(
+                          context: context,
+                          child: ShareUserListScreen(),
+                        );
+                      }
+                      : null,
+              child: Icon(Icons.add),
             ),
           ),
         ),

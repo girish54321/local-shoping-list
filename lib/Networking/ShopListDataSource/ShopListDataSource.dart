@@ -9,6 +9,7 @@ import 'package:local_app/Networking/unti/api_path.dart';
 import 'package:local_app/Networking/unti/request_type.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/modal/all_shop_list_items.dart';
+import 'package:local_app/modal/common_items.dart';
 import 'package:local_app/modal/operation_response.dart';
 import 'package:local_app/modal/user_email_list_response.dart';
 
@@ -361,6 +362,31 @@ class ShopListDataSource {
       if (response.statusCode == 200 || response.statusCode == 201) {
         incomingData = Result<UserEmailListResponse>.success(
           UserEmailListResponse.fromJson(json.decode(response.body)),
+        );
+        return incomingData;
+      } else {
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
+        incomingData = Result.error(response.statusCode);
+        return incomingData;
+      }
+    } catch (error) {
+      incomingData = Result.error("Something went wrong!, $error");
+      DialogHelper.showErrorDialog(description: "Something went wrong! $error");
+      return incomingData;
+    }
+  }
+
+  Future<Result> getCommonItems() async {
+    Result incomingData = Result.loading("Loading");
+    try {
+      final response = await client.request(
+        requestType: RequestType.GET,
+        path: APIPathHelper.getValue(APIPath.getCommonItems),
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        incomingData = Result<CommonItems>.success(
+          CommonItems.fromJson(json.decode(response.body)),
         );
         return incomingData;
       } else {
