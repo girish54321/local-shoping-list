@@ -216,6 +216,8 @@ class ShopingListController extends GetxController {
       "shopListId": selectedState.value.remoteShopListID,
       "itemName": item.itemName,
       "description": item.description,
+      "quantity": item.quantity,
+      "price": item.price,
     });
     result.then((value) {
       if (value is SuccessState) {

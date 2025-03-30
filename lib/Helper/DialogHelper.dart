@@ -9,11 +9,12 @@ class DialogHelper {
     String? title = 'Error',
     String? description = 'Something went wrong',
     ErrorModalError? error,
+    bool isError = true,
   }) {
     Get.dialog(
       GetPlatform.isAndroid
           ? AlertDialog(
-            title: Text("Error: ${error?.status}"),
+            title: Text(isError ? "Error: ${error?.status}" : "Success"),
             content: Text(error?.message ?? description!),
             actions: [
               TextButton(

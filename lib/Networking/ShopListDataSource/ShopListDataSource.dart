@@ -401,4 +401,56 @@ class ShopListDataSource {
       return incomingData;
     }
   }
+
+  Future<Result> updateCommonItems(parameter) async {
+    Result incomingData = Result.loading("Loading");
+    try {
+      final response = await client.request(
+        requestType: RequestType.PUT,
+        path: APIPathHelper.getValue(APIPath.updateCommonItem),
+        parameter: parameter,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        incomingData = Result<OperationResponse>.success(
+          OperationResponse.fromJson(json.decode(response.body)),
+        );
+        return incomingData;
+      } else {
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
+        incomingData = Result.error(response.statusCode);
+        return incomingData;
+      }
+    } catch (error) {
+      incomingData = Result.error("Something went wrong!, $error");
+      DialogHelper.showErrorDialog(description: "Something went wrong! $error");
+      return incomingData;
+    }
+  }
+
+  Future<Result> addCommonItems(parameter) async {
+    Result incomingData = Result.loading("Loading");
+    try {
+      final response = await client.request(
+        requestType: RequestType.POST,
+        path: APIPathHelper.getValue(APIPath.addCommonItem),
+        parameter: parameter,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        incomingData = Result<OperationResponse>.success(
+          OperationResponse.fromJson(json.decode(response.body)),
+        );
+        return incomingData;
+      } else {
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
+        incomingData = Result.error(response.statusCode);
+        return incomingData;
+      }
+    } catch (error) {
+      incomingData = Result.error("Something went wrong!, $error");
+      DialogHelper.showErrorDialog(description: "Something went wrong! $error");
+      return incomingData;
+    }
+  }
 }

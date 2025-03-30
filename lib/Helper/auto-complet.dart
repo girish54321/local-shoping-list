@@ -5,6 +5,7 @@ import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart'
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/modal/common_items.dart';
+import 'package:local_app/modal/operation_response.dart';
 
 class AutoComplet extends StatefulWidget {
   final bool isOwner;
@@ -41,6 +42,21 @@ class _AutoCompletState extends State<AutoComplet> {
     });
   }
 
+  void addNewItem(String text) {
+    Future<Result> result = apiResponse.addCommonItems({
+      "itemName": text,
+      "description": text,
+      "quantity": "1",
+      "price": "1",
+    });
+    result.then((value) {
+      if (value is SuccessState) {
+        var res = value.value as OperationResponse;
+        if (res.success == true) {}
+      }
+    });
+  }
+
   Future<void> confiemAdd(String text) async {
     if (text.isEmpty) {
       return;
@@ -66,9 +82,12 @@ class _AutoCompletState extends State<AutoComplet> {
       'Are you sure?',
     );
     if (action == DialogAction.yes) {
-      itemName?.text = "";
-      FocusScope.of(context).unfocus();
-      widget.onItemTap(newItem);
+      addNewItem(text);
+      Future.delayed(const Duration(seconds: 2), () {
+        itemName?.text = "";
+        FocusScope.of(context).unfocus();
+        widget.onItemTap(newItem);
+      });
     }
   }
 

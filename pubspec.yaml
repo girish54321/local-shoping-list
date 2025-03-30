@@ -22,6 +22,7 @@ dependencies:
   pull_to_refresh_new: ^2.0.5
   http: ^1.3.0
   dynamic_color: ^1.7.0
+  animated_icon: ^0.0.9
 
 
 dev_dependencies:
