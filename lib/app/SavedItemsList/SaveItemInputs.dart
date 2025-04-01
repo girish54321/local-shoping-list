@@ -123,6 +123,7 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
                   Expanded(
                     child: TextFormField(
                       controller: quantityTextEditingController,
+                      keyboardType: TextInputType.number,
                       validator: (text) {
                         final rule = Rule(
                           text,
@@ -147,6 +148,7 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
                   SizedBox(width: 12),
                   Expanded(
                     child: TextFormField(
+                      keyboardType: TextInputType.number,
                       controller: priceTextEditingController,
                       validator: (text) {
                         final rule = Rule(

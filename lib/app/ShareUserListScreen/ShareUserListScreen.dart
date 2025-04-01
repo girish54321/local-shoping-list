@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
-import 'package:local_app/Helper/no_dat_view.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';

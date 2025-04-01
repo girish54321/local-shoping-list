@@ -35,6 +35,7 @@ class _MyAppState extends State<MyApp> {
           darkTheme: ThemeData(
             brightness: Brightness.dark,
             colorScheme: darkDynamic,
+            scaffoldBackgroundColor: Colors.black,
           ),
           theme: ThemeData(
             brightness: Brightness.light,

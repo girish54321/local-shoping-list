@@ -270,8 +270,8 @@ class _AddShopingItemState extends State<AddShopingItem>
         body: TabBarView(
           controller: _tabController,
           children: <Widget>[
-            listOfItem(false, isOwner),
-            listOfItem(true, isOwner),
+            listOfItem(false, allowAction),
+            listOfItem(true, allowAction),
           ],
         ),
         bottomNavigationBar: SafeArea(

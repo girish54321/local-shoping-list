@@ -87,7 +87,8 @@ class LoginScreenUI extends StatelessWidget {
                                   },
                                 ),
                                 InputText(
-                                  textInputType: TextInputType.phone,
+                                  password: true,
+                                  textInputType: TextInputType.name,
                                   textEditingController: passwordController,
                                   hint: "Password",
                                   validator: (text) {
