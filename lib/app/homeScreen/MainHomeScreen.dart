@@ -57,6 +57,12 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    globalController.loadEverything();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Shoping List')),

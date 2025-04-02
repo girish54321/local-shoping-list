@@ -4,6 +4,7 @@ import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/getx/SettingController.dart';
+import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/modal/common_items.dart';
 import 'package:local_app/modal/operation_response.dart';
 
@@ -26,6 +27,7 @@ class _AutoCompletState extends State<AutoComplet> {
   TextEditingController? itemName = TextEditingController();
 
   final SettingController settingController = Get.find();
+  final ShopingListController shopingListController = Get.find();
 
   void getAllItems() {
     if (settingController.offlineMode.value) {
@@ -39,21 +41,6 @@ class _AutoCompletState extends State<AutoComplet> {
           items = res.items as List<CommonItemsItems>;
         });
       } else {}
-    });
-  }
-
-  void addNewItem(String text) {
-    Future<Result> result = apiResponse.addCommonItems({
-      "itemName": text,
-      "description": text,
-      "quantity": "1",
-      "price": "1",
-    });
-    result.then((value) {
-      if (value is SuccessState) {
-        var res = value.value as OperationResponse;
-        if (res.success == true) {}
-      }
     });
   }
 
@@ -82,7 +69,7 @@ class _AutoCompletState extends State<AutoComplet> {
       'Are you sure?',
     );
     if (action == DialogAction.yes) {
-      addNewItem(text);
+      shopingListController.addNewSavedItem(text);
       Future.delayed(const Duration(seconds: 2), () {
         itemName?.text = "";
         FocusScope.of(context).unfocus();

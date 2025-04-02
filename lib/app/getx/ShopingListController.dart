@@ -250,6 +250,21 @@ class ShopingListController extends GetxController {
     return item;
   }
 
+  void addNewSavedItem(String text) {
+    Future<Result> result = apiResponse.addCommonItems({
+      "itemName": text,
+      "description": text,
+      "quantity": "1",
+      "price": "1",
+    });
+    result.then((value) {
+      if (value is SuccessState) {
+        var res = value.value as OperationResponse;
+        if (res.success == true) {}
+      }
+    });
+  }
+
   void updateItemState(ShopListItems? value, bool? state) {
     //* completeShopingListItem
     if (settingController.offlineMode.value) {
@@ -411,13 +426,15 @@ class ShopingListController extends GetxController {
         Helper().hideLoading();
         var apiItem = value.value as SharedUserListResponse;
         sharedUserList.value = apiItem.sharedUserList!;
-        print(apiItem..sharedUserList![0]!.shopListId);
         sharedUserList.refresh();
       } else {}
     });
   }
 
   void getMySharedList() {
+    if (settingController.offlineMode.value) {
+      return;
+    }
     Future<Result> result = apiResponse.getMySharedUserList();
     result.then((value) {
       if (value is SuccessState) {
@@ -454,18 +471,11 @@ class ShopingListController extends GetxController {
   }
 
   void loadEverything() {
-    loadCompletedShopingList();
-    loadInProgressShopingList();
-    getMySharedList();
-  }
-
-  @override
-  void onInit() {
     Future.delayed(const Duration(seconds: 2), () {
-      loadEverything();
+      loadCompletedShopingList();
+      loadInProgressShopingList();
+      getMySharedList();
     });
-
-    super.onInit();
   }
 
   @override

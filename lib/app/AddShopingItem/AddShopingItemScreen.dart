@@ -8,7 +8,7 @@ import 'package:local_app/Helper/auto-complet.dart';
 import 'package:local_app/Helper/no_dat_view.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
-import 'package:local_app/app/AddItems/AddItemsScreen.dart';
+import 'package:local_app/app/AddItems/add_items_screen.dart';
 import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
 import 'package:local_app/app/ShareUserListScreen/ShareUserListScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
@@ -278,7 +278,7 @@ class _AddShopingItemState extends State<AddShopingItem>
           child: ListTile(
             title: Text("Shared with others"),
             subtitle:
-                !offline && !isOwner
+                !offline && isOwner
                     ? Text("Share your list with others!")
                     : Text("Not available in offline mode!"),
             trailing: FloatingActionButton(

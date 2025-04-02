@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
+import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/SavedItemsList/SaveItemInputs.dart';
@@ -47,10 +48,18 @@ class _SavedItemsListState extends State<SavedItemsList> {
     super.initState();
   }
 
+  void goToAddNewSavedItem() {
+    Helper().goToPage(context: context, child: AddNewSavedItemScreen());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Saved Items')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: goToAddNewSavedItem,
+        child: Icon(Icons.add),
+      ),
       body: PullToLoadList(
         refreshController: refreshController,
         onRefresh: () {},
@@ -63,6 +72,33 @@ class _SavedItemsListState extends State<SavedItemsList> {
           },
         ),
         onLoading: () {},
+      ),
+    );
+  }
+}
+
+class AddNewSavedItemScreen extends StatefulWidget {
+  const AddNewSavedItemScreen({super.key});
+
+  @override
+  State<AddNewSavedItemScreen> createState() => _AddNewSavedItemScreenState();
+}
+
+class _AddNewSavedItemScreenState extends State<AddNewSavedItemScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Create New Saved Item")),
+      body: ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SaveItemInputs(
+              item: CommonItemsItems(),
+              isCreateNewItem: true,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,17 +1,17 @@
-import 'dart:math';
-
-import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
+import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/modal/common_items.dart';
 import 'package:local_app/modal/operation_response.dart';
 import 'package:rules/rules.dart';
 
 class SaveItemInputs extends StatefulWidget {
   final CommonItemsItems? item;
-  const SaveItemInputs({super.key, this.item});
+  final bool? isCreateNewItem;
+  const SaveItemInputs({super.key, this.item, this.isCreateNewItem});
 
   @override
   State<SaveItemInputs> createState() => _SaveItemInputsState();
@@ -20,6 +20,8 @@ class SaveItemInputs extends StatefulWidget {
 class _SaveItemInputsState extends State<SaveItemInputs> {
   CommonItemsItems? inputState;
   final _formKey = GlobalKey<FormState>();
+
+  final ShopingListController shopingListController = Get.find();
 
   TextEditingController nameTextEditingController = TextEditingController();
   TextEditingController quantityTextEditingController = TextEditingController();
@@ -46,6 +48,11 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
 
   void updateItems() {
     if (_formKey.currentState!.validate()) {
+      if (widget.isCreateNewItem != null && widget.isCreateNewItem! == true) {
+        shopingListController.addNewSavedItem(nameTextEditingController.text);
+        return;
+      }
+
       Future<Result> result = apiResponse.updateCommonItems({
         "itemId": widget.item?.commonItemsId ?? "",
         "itemName": nameTextEditingController.text,
@@ -182,29 +189,22 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
               ),
               child: Row(
                 children: [
-                  Expanded(
-                    child: SizedBox(),
-                    // child: AnimateIcon(
-                    //   key: UniqueKey(),
-                    //   onTap: () {},
-                    //   iconType: IconType.continueAnimation,
-                    //   height: 70,
-                    //   width: 70,
-                    //   color: Colors.green,
-                    //   animateIcon: AnimateIcons.checkmarkOk,
-                    // ),
-                  ),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      child: Text("Delete"),
-                    ),
-                  ),
+                  Expanded(child: SizedBox()),
+                  widget.isCreateNewItem == null
+                      ? Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          child: Text("Delete"),
+                        ),
+                      )
+                      : SizedBox(),
                   SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: updateItems,
-                      child: Text("Update"),
+                      child: Text(
+                        widget.isCreateNewItem == null ? "Update" : "Create",
+                      ),
                     ),
                   ),
                 ],
