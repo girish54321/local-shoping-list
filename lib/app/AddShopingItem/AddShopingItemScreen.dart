@@ -278,7 +278,7 @@ class _AddShopingItemState extends State<AddShopingItem>
           child: ListTile(
             title: Text("Shared with others"),
             subtitle:
-                allowAction
+                !offline && !isOwner
                     ? Text("Share your list with others!")
                     : Text("Not available in offline mode!"),
             trailing: FloatingActionButton(
