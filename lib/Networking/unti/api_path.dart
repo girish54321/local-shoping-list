@@ -18,6 +18,7 @@ enum APIPath {
   getCommonItems,
   addCommonItem,
   updateCommonItem,
+  deleteCommonItem,
 }
 
 class APIPathHelper {
@@ -61,6 +62,8 @@ class APIPathHelper {
         return "shoplist/add-common-items";
       case APIPath.updateCommonItem:
         return "shoplist/update-common-items";
+      case APIPath.deleteCommonItem:
+        return "shoplist/delete-common-items";
     }
   }
 }

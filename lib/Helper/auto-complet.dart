@@ -5,6 +5,7 @@ import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart'
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/modal/addCommonItems.dart';
 import 'package:local_app/modal/common_items.dart';
 import 'package:local_app/modal/operation_response.dart';
 
@@ -69,7 +70,13 @@ class _AutoCompletState extends State<AutoComplet> {
       'Are you sure?',
     );
     if (action == DialogAction.yes) {
-      shopingListController.addNewSavedItem(text);
+      var item = AddCommonItems(
+        itemName: text,
+        description: text,
+        quantity: "1",
+        price: "1",
+      );
+      shopingListController.addNewSavedItem(item);
       Future.delayed(const Duration(seconds: 2), () {
         itemName?.text = "";
         FocusScope.of(context).unfocus();

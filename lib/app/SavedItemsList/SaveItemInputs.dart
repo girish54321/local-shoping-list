@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:local_app/Helper/DialogHelper.dart';
+import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/modal/addCommonItems.dart';
 import 'package:local_app/modal/common_items.dart';
 import 'package:local_app/modal/operation_response.dart';
 import 'package:rules/rules.dart';
@@ -11,7 +13,13 @@ import 'package:rules/rules.dart';
 class SaveItemInputs extends StatefulWidget {
   final CommonItemsItems? item;
   final bool? isCreateNewItem;
-  const SaveItemInputs({super.key, this.item, this.isCreateNewItem});
+  final Function? reloadList;
+  const SaveItemInputs({
+    super.key,
+    this.item,
+    this.isCreateNewItem,
+    this.reloadList,
+  });
 
   @override
   State<SaveItemInputs> createState() => _SaveItemInputsState();
@@ -46,10 +54,49 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
     });
   }
 
+  Future<void> deleteItem() async {
+    final action = await Dialogs.yesAbortDialog(
+      context,
+      'Delete selected Item?',
+      'Are you sure?',
+    );
+    if (action == DialogAction.abort) {
+      return;
+    }
+
+    Future<Result> result = apiResponse.deleteCommonItems({
+      "itemId": widget.item?.commonItemsId ?? "",
+    });
+    result.then((value) {
+      if (value is SuccessState) {
+        var res = value.value as OperationResponse;
+        if (res.success == true) {
+          if (widget.reloadList != null) {
+            widget.reloadList!();
+          }
+          DialogHelper.showErrorDialog(
+            isError: false,
+            description: "Common items deleted successfully",
+          );
+        }
+      }
+    });
+  }
+
   void updateItems() {
     if (_formKey.currentState!.validate()) {
       if (widget.isCreateNewItem != null && widget.isCreateNewItem! == true) {
-        shopingListController.addNewSavedItem(nameTextEditingController.text);
+        var item = AddCommonItems(
+          itemName: nameTextEditingController.text,
+          description: nameTextEditingController.text,
+          quantity: quantityTextEditingController.text,
+          price: priceTextEditingController.text,
+        );
+        shopingListController.addNewSavedItem(item);
+        if (widget.reloadList != null) {
+          widget.reloadList!();
+        }
+        Helper().goBack();
         return;
       }
 
@@ -64,6 +111,9 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
         if (value is SuccessState) {
           var res = value.value as OperationResponse;
           if (res.success == true) {
+            if (widget.reloadList != null) {
+              widget.reloadList!();
+            }
             DialogHelper.showErrorDialog(
               isError: false,
               description: "Common items updated successfully",
@@ -193,7 +243,7 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
                   widget.isCreateNewItem == null
                       ? Expanded(
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: deleteItem,
                           child: Text("Delete"),
                         ),
                       )

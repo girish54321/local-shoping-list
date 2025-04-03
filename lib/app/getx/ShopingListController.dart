@@ -7,6 +7,7 @@ import 'package:local_app/Networking/modal/shared_user_response.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
+import 'package:local_app/modal/addCommonItems.dart';
 import 'package:local_app/modal/all_shop_list_items.dart';
 import 'package:local_app/modal/operation_response.dart';
 
@@ -77,20 +78,16 @@ class ShopingListController extends GetxController {
   }
 
   void addNewShopList(String title, String description) {
+    var item = MainShopListItem(shopListName: title, description: description);
     if (settingController.offlineMode.value) {
-      _databaseService.createShopingList(
-        MainShopListItem(shopListName: title, description: description),
-      );
+      _databaseService.createShopingList(item);
       Helper().goBack();
       loadCompletedShopingList();
       loadInProgressShopingList();
       return;
     }
 
-    Future<Result> result = apiResponse.createShopList({
-      "shopListName": title,
-      "description": description,
-    });
+    Future<Result> result = apiResponse.createShopList(item.toJson());
     result.then((value) {
       if (value is SuccessState) {
         Helper().hideLoading();
@@ -212,13 +209,7 @@ class ShopingListController extends GetxController {
       return;
     }
 
-    Future<Result> result = apiResponse.createShopListItem({
-      "shopListId": selectedState.value.remoteShopListID,
-      "itemName": item.itemName,
-      "description": item.description,
-      "quantity": item.quantity,
-      "price": item.price,
-    });
+    Future<Result> result = apiResponse.createShopListItem(item.toJson());
     result.then((value) {
       if (value is SuccessState) {
         Helper().hideLoading();
@@ -250,13 +241,8 @@ class ShopingListController extends GetxController {
     return item;
   }
 
-  void addNewSavedItem(String text) {
-    Future<Result> result = apiResponse.addCommonItems({
-      "itemName": text,
-      "description": text,
-      "quantity": "1",
-      "price": "1",
-    });
+  void addNewSavedItem(AddCommonItems item) {
+    Future<Result> result = apiResponse.addCommonItems(item.toJson());
     result.then((value) {
       if (value is SuccessState) {
         var res = value.value as OperationResponse;
@@ -392,11 +378,7 @@ class ShopingListController extends GetxController {
       loadInProgressShopingList();
       return;
     }
-    Future<Result> result = apiResponse.updateShopList({
-      "shopListId": selectedState.value.remoteShopListID ?? "",
-      "shopListName": item.shopListName,
-      "description": item.description,
-    });
+    Future<Result> result = apiResponse.updateShopList(item.toJson());
     result.then((value) {
       if (value is SuccessState) {
         Helper().hideLoading();

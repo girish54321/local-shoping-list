@@ -453,4 +453,30 @@ class ShopListDataSource {
       return incomingData;
     }
   }
+
+  Future<Result> deleteCommonItems(parameter) async {
+    Result incomingData = Result.loading("Loading");
+    try {
+      final response = await client.request(
+        requestType: RequestType.DELETE,
+        path: APIPathHelper.getValue(APIPath.deleteCommonItem),
+        parameter: parameter,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        incomingData = Result<OperationResponse>.success(
+          OperationResponse.fromJson(json.decode(response.body)),
+        );
+        return incomingData;
+      } else {
+        var errorObj = ErrorModal.fromJson(json.decode(response.body));
+        DialogHelper.showErrorDialog(error: errorObj.error);
+        incomingData = Result.error(response.statusCode);
+        return incomingData;
+      }
+    } catch (error) {
+      incomingData = Result.error("Something went wrong!, $error");
+      DialogHelper.showErrorDialog(description: "Something went wrong! $error");
+      return incomingData;
+    }
+  }
 }

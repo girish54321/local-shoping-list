@@ -31,6 +31,8 @@ class _SavedItemsListState extends State<SavedItemsList> {
     if (settingController.offlineMode.value) {
       return;
     }
+    refreshController.footerMode?.value = LoadStatus.idle;
+    refreshController.refreshCompleted();
     Future<Result> result = apiResponse.getCommonItems();
     result.then((value) {
       if (value is SuccessState) {
@@ -48,8 +50,17 @@ class _SavedItemsListState extends State<SavedItemsList> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    refreshController.dispose();
+    super.dispose();
+  }
+
   void goToAddNewSavedItem() {
-    Helper().goToPage(context: context, child: AddNewSavedItemScreen());
+    Helper().goToPage(
+      context: context,
+      child: AddNewSavedItemScreen(reloadList: getAllItems),
+    );
   }
 
   @override
@@ -62,13 +73,15 @@ class _SavedItemsListState extends State<SavedItemsList> {
       ),
       body: PullToLoadList(
         refreshController: refreshController,
-        onRefresh: () {},
+        onRefresh: () {
+          getAllItems();
+        },
         child: ListView.builder(
           padding: EdgeInsets.symmetric(horizontal: 12),
           itemCount: items.length,
           itemBuilder: (context, index) {
             var listItem = items[index];
-            return SaveItemInputs(item: listItem);
+            return SaveItemInputs(item: listItem, reloadList: getAllItems);
           },
         ),
         onLoading: () {},
@@ -78,7 +91,9 @@ class _SavedItemsListState extends State<SavedItemsList> {
 }
 
 class AddNewSavedItemScreen extends StatefulWidget {
-  const AddNewSavedItemScreen({super.key});
+  final Function? reloadList;
+
+  const AddNewSavedItemScreen({super.key, this.reloadList});
 
   @override
   State<AddNewSavedItemScreen> createState() => _AddNewSavedItemScreenState();
@@ -94,6 +109,7 @@ class _AddNewSavedItemScreenState extends State<AddNewSavedItemScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: SaveItemInputs(
+              reloadList: widget.reloadList,
               item: CommonItemsItems(),
               isCreateNewItem: true,
             ),
