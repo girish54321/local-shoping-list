@@ -17,7 +17,8 @@ class SavedItemsList extends StatefulWidget {
 }
 
 class _SavedItemsListState extends State<SavedItemsList> {
-  List<CommonItemsItems> items = [];
+  LoadingState<List<CommonItemsItems>> items =
+      LoadingState<List<CommonItemsItems>>.loading();
   ShopListDataSource apiResponse = ShopListDataSource();
   TextEditingController? itemName = TextEditingController();
 
@@ -31,13 +32,22 @@ class _SavedItemsListState extends State<SavedItemsList> {
     if (settingController.offlineMode.value) {
       return;
     }
-    refreshController.footerMode?.value = LoadStatus.idle;
+    // refreshController.footerMode?.value = LoadStatus.idle;
+    refreshController.headerMode?.value = RefreshStatus.refreshing;
     refreshController.refreshCompleted();
     var result = await apiResponse.getCommonItems();
     if (result.status == LoadingStatus.success) {
       setState(() {
-        items = result.data?.items as List<CommonItemsItems>;
+        items = LoadingState<List<CommonItemsItems>>.success(
+          result.data?.items as List<CommonItemsItems>,
+        );
       });
+      refreshController.headerMode?.value = RefreshStatus.completed;
+    } else if (result.status == LoadingStatus.error) {
+      setState(() {
+        items = LoadingState<List<CommonItemsItems>>.error(result.errorMessage);
+      });
+      refreshController.headerMode?.value = RefreshStatus.failed;
     }
   }
 
@@ -75,9 +85,9 @@ class _SavedItemsListState extends State<SavedItemsList> {
         },
         child: ListView.builder(
           padding: EdgeInsets.symmetric(horizontal: 12),
-          itemCount: items.length,
+          itemCount: items.data?.length,
           itemBuilder: (context, index) {
-            var listItem = items[index];
+            var listItem = items.data?[index];
             return SaveItemInputs(item: listItem, reloadList: getAllItems);
           },
         ),
