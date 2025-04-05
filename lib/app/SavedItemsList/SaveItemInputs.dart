@@ -64,26 +64,23 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
       return;
     }
 
-    Future<Result> result = apiResponse.deleteCommonItems({
+    var result = await apiResponse.deleteCommonItems({
       "itemId": widget.item?.commonItemsId ?? "",
     });
-    result.then((value) {
-      if (value is SuccessState) {
-        var res = value.value as OperationResponse;
-        if (res.success == true) {
-          if (widget.reloadList != null) {
-            widget.reloadList!();
-          }
-          DialogHelper.showErrorDialog(
-            isError: false,
-            description: "Common items deleted successfully",
-          );
+    if (result.status == LoadingStatus.success) {
+      if (result.data?.success == true) {
+        if (widget.reloadList != null) {
+          widget.reloadList!();
         }
+        DialogHelper.showErrorDialog(
+          isError: false,
+          description: "Common items deleted successfully",
+        );
       }
-    });
+    }
   }
 
-  void updateItems() {
+  Future<void> updateItems() async {
     if (_formKey.currentState!.validate()) {
       if (widget.isCreateNewItem != null && widget.isCreateNewItem! == true) {
         var item = AddCommonItems(
@@ -100,27 +97,24 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
         return;
       }
 
-      Future<Result> result = apiResponse.updateCommonItems({
+      var result = await apiResponse.updateCommonItems({
         "itemId": widget.item?.commonItemsId ?? "",
         "itemName": nameTextEditingController.text,
         "description": nameTextEditingController.text,
         "quantity": quantityTextEditingController.text,
         "price": priceTextEditingController.text,
       });
-      result.then((value) {
-        if (value is SuccessState) {
-          var res = value.value as OperationResponse;
-          if (res.success == true) {
-            if (widget.reloadList != null) {
-              widget.reloadList!();
-            }
-            DialogHelper.showErrorDialog(
-              isError: false,
-              description: "Common items updated successfully",
-            );
+      if (result.status == LoadingStatus.success) {
+        if (result.data?.success == true) {
+          if (widget.reloadList != null) {
+            widget.reloadList!();
           }
+          DialogHelper.showErrorDialog(
+            isError: false,
+            description: "Common items updated successfully",
+          );
         }
-      });
+      }
     }
   }
 

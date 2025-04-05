@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/AuthDataSource/AuthDataSource.dart';
-import 'package:local_app/Networking/modal/userLoginModal.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/Auth/LoginScreen/loginScreenUI.dart';
 import 'package:local_app/app/Auth/SignUpScreen/SignUpScreen.dart';
@@ -55,24 +54,18 @@ class _LoginScreenState extends State<LoginScreen> {
     GetStorage box = GetStorage();
     if (_formKey.currentState!.validate()) {
       Helper().dismissKeyBoard(context);
-      Helper().showLoading();
-
       AuthDataSource apiResponse = AuthDataSource();
       var parameter = {
         "email": emailController.text,
         "password": passwordController.text,
       };
 
-      Future<Result> result = apiResponse.userLogin(parameter);
-      result.then((value) {
-        if (value is SuccessState) {
-          Helper().hideLoading();
-          var res = value.value as UserLoginResponse;
-          box.write('token', res.accessToken);
-          Get.off(MainHomeScreen());
-          shopingListController.loadCompletedShopingList();
-        }
-      });
+      var result = await apiResponse.userLogin(parameter);
+      if (result.status == LoadingStatus.success) {
+        box.write('token', result.data?.accessToken);
+        Get.off(MainHomeScreen());
+        shopingListController.loadCompletedShopingList();
+      }
     } else {
       // Helper().vibratPhone();
     }

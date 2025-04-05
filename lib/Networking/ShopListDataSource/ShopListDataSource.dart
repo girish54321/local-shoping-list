@@ -16,8 +16,7 @@ import 'package:local_app/modal/user_email_list_response.dart';
 class ShopListDataSource {
   ReqResClient client = ReqResClient(Client());
 
-  Future<Result> getShopList(params) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<AllShopListMain>> getShopList(params) async {
     try {
       final response = await client.request(
         requestType: RequestType.GET,
@@ -25,308 +24,276 @@ class ShopListDataSource {
         params: params,
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<AllShopListMain>.success(
-          AllShopListMain.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = AllShopListMain.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> createShopList(parameter) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<OperationResponse>> createShopList(parameter) async {
+    DialogHelper.showLoading();
     try {
       final response = await client.request(
         requestType: RequestType.POST,
         path: APIPathHelper.getValue(APIPath.createList),
         parameter: parameter,
       );
+      DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<OperationResponse>.success(
-          OperationResponse.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = OperationResponse.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> createShopListItem(parameter) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<OperationResponse>> createShopListItem(parameter) async {
+    DialogHelper.showLoading();
     try {
       final response = await client.request(
         requestType: RequestType.POST,
         path: APIPathHelper.getValue(APIPath.createShopListItem),
         parameter: parameter,
       );
+      DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<OperationResponse>.success(
-          OperationResponse.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = OperationResponse.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> getShopListItem(String shopId, params) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<AllShopListItems>> getShopListItem(
+    String shopId,
+    params,
+  ) async {
     try {
       final response = await client.request(
         requestType: RequestType.GET,
         path: "${APIPathHelper.getValue(APIPath.getShopingLisItems)}/$shopId",
         params: params,
       );
+
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<AllShopListItems>.success(
-          AllShopListItems.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = AllShopListItems.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> updateShopListItemState(parameter) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<OperationResponse>> updateShopListItemState(
+    parameter,
+  ) async {
+    DialogHelper.showLoading();
     try {
       final response = await client.request(
         requestType: RequestType.PUT,
         path: APIPathHelper.getValue(APIPath.updateShopListItemState),
         parameter: parameter,
       );
+      DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<OperationResponse>.success(
-          OperationResponse.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = OperationResponse.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> deleteShopListItem(shopItemId) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<OperationResponse>> deleteShopListItem(shopItemId) async {
+    DialogHelper.showLoading();
     try {
       final response = await client.request(
         requestType: RequestType.DELETE,
         path:
             "${APIPathHelper.getValue(APIPath.deleteShopListItem)}/$shopItemId",
       );
+      DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<OperationResponse>.success(
-          OperationResponse.fromJson(json.decode(response.body)),
+        final incomingData = OperationResponse.fromJson(
+          json.decode(response.body),
         );
-        return incomingData;
+        return LoadingState.success(incomingData);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> deleteShopList(shopListID) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<OperationResponse>> deleteShopList(shopListID) async {
+    DialogHelper.showLoading();
     try {
       final response = await client.request(
         requestType: RequestType.DELETE,
         path: "${APIPathHelper.getValue(APIPath.deleteShopList)}/$shopListID",
       );
+      DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<OperationResponse>.success(
-          OperationResponse.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = OperationResponse.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> updateShopListItem(parameter) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<OperationResponse>> updateShopListItem(parameter) async {
+    DialogHelper.showLoading();
     try {
       final response = await client.request(
         requestType: RequestType.PUT,
         path: APIPathHelper.getValue(APIPath.updateShopListItem),
         parameter: parameter,
       );
+      DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<OperationResponse>.success(
-          OperationResponse.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = OperationResponse.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> updateShopList(parameter) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<OperationResponse>> updateShopList(parameter) async {
+    DialogHelper.showLoading();
     try {
       final response = await client.request(
         requestType: RequestType.PUT,
         path: APIPathHelper.getValue(APIPath.updateShopList),
         parameter: parameter,
       );
+      DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<OperationResponse>.success(
-          OperationResponse.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = OperationResponse.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> getSharedUserList(shopId) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<SharedUserListResponse>> getSharedUserList(shopId) async {
     try {
       final response = await client.request(
         requestType: RequestType.GET,
         path: "${APIPathHelper.getValue(APIPath.getSharedUserList)}$shopId",
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<SharedUserListResponse>.success(
-          SharedUserListResponse.fromJson(json.decode(response.body)),
+        final data = SharedUserListResponse.fromJson(
+          json.decode(response.body),
         );
-        return incomingData;
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> getMySharedUserList() async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<SharedUserListResponse>> getMySharedUserList() async {
     try {
       final response = await client.request(
         requestType: RequestType.GET,
         path: APIPathHelper.getValue(APIPath.getSharedUserList),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<SharedUserListResponse>.success(
-          SharedUserListResponse.fromJson(json.decode(response.body)),
+        final data = SharedUserListResponse.fromJson(
+          json.decode(response.body),
         );
-        return incomingData;
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> shareShopList(parameter) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<OperationResponse>> shareShopList(parameter) async {
+    DialogHelper.showLoading();
     try {
       final response = await client.request(
         requestType: RequestType.POST,
         path: APIPathHelper.getValue(APIPath.shareShopList),
         parameter: parameter,
       );
+      DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<OperationResponse>.success(
-          OperationResponse.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = OperationResponse.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> getUserEmailList(params) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<UserEmailListResponse>> getUserEmailList(params) async {
     try {
       final response = await client.request(
         requestType: RequestType.GET,
@@ -334,25 +301,22 @@ class ShopListDataSource {
         params: params,
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<UserEmailListResponse>.success(
-          UserEmailListResponse.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = UserEmailListResponse.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> shareListWithUser(parameter) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<UserEmailListResponse>> shareListWithUser(
+    parameter,
+  ) async {
     try {
       final response = await client.request(
         requestType: RequestType.POST,
@@ -360,123 +324,105 @@ class ShopListDataSource {
         parameter: parameter,
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<UserEmailListResponse>.success(
-          UserEmailListResponse.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = UserEmailListResponse.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> getCommonItems() async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<CommonItems>> getCommonItems() async {
     try {
       final response = await client.request(
         requestType: RequestType.GET,
         path: APIPathHelper.getValue(APIPath.getCommonItems),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<CommonItems>.success(
-          CommonItems.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = CommonItems.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> updateCommonItems(parameter) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<OperationResponse>> updateCommonItems(parameter) async {
+    DialogHelper.showLoading();
     try {
       final response = await client.request(
         requestType: RequestType.PUT,
         path: APIPathHelper.getValue(APIPath.updateCommonItem),
         parameter: parameter,
       );
+      DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<OperationResponse>.success(
-          OperationResponse.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = OperationResponse.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> addCommonItems(parameter) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<OperationResponse>> addCommonItems(parameter) async {
+    DialogHelper.showLoading();
     try {
       final response = await client.request(
         requestType: RequestType.POST,
         path: APIPathHelper.getValue(APIPath.addCommonItem),
         parameter: parameter,
       );
+      DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<OperationResponse>.success(
-          OperationResponse.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = OperationResponse.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 
-  Future<Result> deleteCommonItems(parameter) async {
-    Result incomingData = Result.loading("Loading");
+  Future<LoadingState<OperationResponse>> deleteCommonItems(parameter) async {
+    DialogHelper.showLoading();
     try {
       final response = await client.request(
         requestType: RequestType.DELETE,
         path: APIPathHelper.getValue(APIPath.deleteCommonItem),
         parameter: parameter,
       );
+      DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {
-        incomingData = Result<OperationResponse>.success(
-          OperationResponse.fromJson(json.decode(response.body)),
-        );
-        return incomingData;
+        final data = OperationResponse.fromJson(json.decode(response.body));
+        return LoadingState.success(data);
       } else {
         var errorObj = ErrorModal.fromJson(json.decode(response.body));
         DialogHelper.showErrorDialog(error: errorObj.error);
-        incomingData = Result.error(response.statusCode);
-        return incomingData;
+        return LoadingState.error("Error code: ${response.statusCode}");
       }
     } catch (error) {
-      incomingData = Result.error("Something went wrong!, $error");
       DialogHelper.showErrorDialog(description: "Something went wrong! $error");
-      return incomingData;
+      return LoadingState.error("Something went wrong! $error");
     }
   }
 }

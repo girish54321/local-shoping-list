@@ -11,35 +11,37 @@ class DialogHelper {
     ErrorModalError? error,
     bool isError = true,
   }) {
-    Get.dialog(
-      GetPlatform.isAndroid
-          ? AlertDialog(
-            title: Text(isError ? "Error: ${error?.status}" : "Success"),
-            content: Text(error?.message ?? description!),
-            actions: [
-              TextButton(
-                child: const Text('Okay'),
-                onPressed: () {
-                  Get.until((route) => !Get.isDialogOpen!);
-                },
-              ),
-            ],
-            scrollable: true,
-          )
-          : CupertinoAlertDialog(
-            title: Text("Error: ${error?.status}"),
-            content: Text(error?.message ?? description!),
-            actions: [
-              TextButton(
-                child: const Text('Okay'),
-                onPressed: () {
-                  Get.until((route) => !Get.isDialogOpen!);
-                },
-              ),
-            ],
-          ),
-      barrierDismissible: true,
-    );
+    Future.delayed(const Duration(milliseconds: 300), () {
+      Get.dialog(
+        GetPlatform.isAndroid
+            ? AlertDialog(
+              title: Text(isError ? "Error: ${error?.status}" : "Success"),
+              content: Text(error?.message ?? description!),
+              actions: [
+                TextButton(
+                  child: const Text('Okay'),
+                  onPressed: () {
+                    Get.until((route) => !Get.isDialogOpen!);
+                  },
+                ),
+              ],
+              scrollable: true,
+            )
+            : CupertinoAlertDialog(
+              title: Text("Error: ${error?.status}"),
+              content: Text(error?.message ?? description!),
+              actions: [
+                TextButton(
+                  child: const Text('Okay'),
+                  onPressed: () {
+                    Get.until((route) => !Get.isDialogOpen!);
+                  },
+                ),
+              ],
+            ),
+        barrierDismissible: true,
+      );
+    });
   }
 
   //show toast

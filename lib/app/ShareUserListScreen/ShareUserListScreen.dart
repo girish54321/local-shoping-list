@@ -24,7 +24,8 @@ class _ShareUserListScreenState extends State<ShareUserListScreen> {
   );
   ShopListDataSource apiResponse = ShopListDataSource();
   TextEditingController? userNameText = TextEditingController();
-  List<UserEmailListResponseUsers?>? users;
+  LoadingState<List<UserEmailListResponseUsers?>?> users =
+      LoadingState<List<UserEmailListResponseUsers?>?>.loading();
 
   String? selectedUser;
 
@@ -39,16 +40,16 @@ class _ShareUserListScreenState extends State<ShareUserListScreen> {
     }
   }
 
-  void getUserList(String text) {
-    Future<Result> result = apiResponse.getUserEmailList({"search": text});
-    result.then((value) {
-      if (value is SuccessState) {
-        var res = value.value as UserEmailListResponse;
-        setState(() {
-          users = res.users;
-        });
-      }
+  Future<void> getUserList(String text) async {
+    setState(() {
+      users = LoadingState.loading();
     });
+    var result = await apiResponse.getUserEmailList({"search": text});
+    if (result.status == LoadingStatus.success) {
+      setState(() {
+        users = LoadingState.success(result.data?.users);
+      });
+    }
   }
 
   @override
@@ -68,6 +69,12 @@ class _ShareUserListScreenState extends State<ShareUserListScreen> {
     return Obx(() {
       var list = shopingListController.sharedUserList.value;
       var isOwner = shopingListController.isOwner.value;
+
+      var isLoading = list == LoadingStatus.loading;
+
+      if (isLoading) {
+        return Center(child: CircularProgressIndicator());
+      }
       return Scaffold(
         appBar: AppBar(title: Text("Share user list")),
         body: PullToLoadList(
@@ -140,7 +147,7 @@ class _ShareUserListScreenState extends State<ShareUserListScreen> {
                         return [];
                       }
                       final List<String> suggestions =
-                          users
+                          users.data
                               ?.whereType<UserEmailListResponseUsers>()
                               .map((user) => user.email)
                               .whereType<String>()
@@ -151,7 +158,9 @@ class _ShareUserListScreenState extends State<ShareUserListScreen> {
                     },
                     onSelected: (suggestion) {
                       var item =
-                          users?.where((i) => i?.email == suggestion).toList();
+                          users.data
+                              ?.where((i) => i?.email == suggestion)
+                              .toList();
                       var id = item?[0]?.userId;
                       setState(() {
                         selectedUser = id;

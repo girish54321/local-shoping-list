@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/state_manager.dart';
 import 'package:get/instance_manager.dart';
+import 'package:local_app/Helper/error_screen.dart';
+import 'package:local_app/Helper/loadingListView.dart';
+import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/MySharedUserList/MySharedUserList.dart';
 import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 import 'package:local_app/app/ShopingList/ShopingList.dart';
@@ -29,21 +32,48 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
 
   Widget createMainScreenWidget() {
     if (_selectedIndex == 0) {
-      return Obx(
-        (() => ShopingList(
-          isCompleted: false,
-          shoppingList: globalController.inprogressShopingList.value,
-        )),
-      );
+      return Obx(() {
+        final state = globalController.inprogressShopingList.value;
+
+        if (state.status == LoadingStatus.loading) {
+          return LoadingListView();
+        } else if (state.status == LoadingStatus.error) {
+          return ErrorView(
+            errorMessage: state.errorMessage,
+            onRetry: () {
+              globalController.loadEverything();
+            },
+          );
+        } else {
+          return ShopingList(
+            isCompleted: false,
+            shoppingList: globalController.inprogressShopingList.value.data,
+          );
+        }
+      });
     }
 
     if (_selectedIndex == 1) {
-      return Obx(
-        (() => ShopingList(
-          isCompleted: true,
-          shoppingList: globalController.completedShopingList.value,
-        )),
-      );
+      // return Obx(
+      return Obx(() {
+        final state = globalController.completedShopingList.value;
+
+        if (state.status == LoadingStatus.loading) {
+          return LoadingListView();
+        } else if (state.status == LoadingStatus.error) {
+          return ErrorView(
+            errorMessage: state.errorMessage,
+            onRetry: () {
+              globalController.loadEverything();
+            },
+          );
+        } else {
+          return ShopingList(
+            isCompleted: true,
+            shoppingList: globalController.completedShopingList.value.data,
+          );
+        }
+      });
     }
 
     if (_selectedIndex == 2) {

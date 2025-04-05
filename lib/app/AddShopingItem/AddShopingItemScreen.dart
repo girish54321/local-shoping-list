@@ -5,9 +5,11 @@ import 'package:get/state_manager.dart';
 import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
 import 'package:local_app/Helper/auto-complet.dart';
+import 'package:local_app/Helper/loadingListView.dart';
 import 'package:local_app/Helper/no_dat_view.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
+import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/AddItems/add_items_screen.dart';
 import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
 import 'package:local_app/app/ShareUserListScreen/ShareUserListScreen.dart';
@@ -53,6 +55,7 @@ class _AddShopingItemState extends State<AddShopingItem>
   void _addShopingItem(CommonItemsItems commonItems) {
     var item = ShopListItems(
       id: shopingListController.selectedState.value.localShopListID,
+      shopListId: shopingListController.selectedState.value.remoteShopListID,
       shopListItemsId:
           shopingListController.selectedState.value.remoteShopListID,
       itemName: commonItems.itemName,
@@ -93,10 +96,23 @@ class _AddShopingItemState extends State<AddShopingItem>
       var inprogressList =
           shopingListController.inprogressShopingListItem.value;
 
+      final inProgressStatus =
+          shopingListController.inprogressShopingListItem.value.status;
+      final completedStatus =
+          shopingListController.completedShopingListItem.value.status;
+
+      var isLoading =
+          inProgressStatus == LoadingStatus.loading ||
+          completedStatus == LoadingStatus.loading;
+
+      if (isLoading) {
+        return LoadingListView();
+      }
+
       return Stack(
         children: [
-          (isCompletedList && completedList!.isEmpty ||
-                  !isCompletedList && inprogressList!.isEmpty)
+          (isCompletedList && completedList.data!.isEmpty ||
+                  !isCompletedList && inprogressList.data!.isEmpty)
               ? Center(child: NoDataView())
               : SizedBox(),
           PullToLoadList(
@@ -117,7 +133,9 @@ class _AddShopingItemState extends State<AddShopingItem>
             },
             child: ListView.builder(
               itemCount:
-                  ((isCompletedList ? completedList : inprogressList)?.length ??
+                  ((isCompletedList ? completedList : inprogressList)
+                          .data
+                          ?.length ??
                       0) +
                   1,
               itemBuilder: (context, index) {
@@ -134,15 +152,15 @@ class _AddShopingItemState extends State<AddShopingItem>
                 }
                 ShopListItems? item =
                     isCompletedList
-                        ? completedList![index - 1]
-                        : inprogressList![index - 1];
-                bool isChecked = item?.state == 'completed' ? true : false;
+                        ? completedList.data![index - 1]
+                        : inprogressList.data![index - 1];
+                bool isChecked = item.state == 'completed' ? true : false;
                 return ListTile(
-                  title: Text(item?.itemName ?? "NA"),
+                  title: Text(item.itemName ?? "NA"),
                   subtitle:
-                      item?.quantity != null
+                      item.quantity != null
                           ? Text(
-                            "Quantity: ${item?.quantity?.toString()} / Price: ${item?.price}",
+                            "Quantity: ${item.quantity?.toString()} / Price: ${item.price}",
                           )
                           : null,
                   trailing: isOwner ? openPopUpMenu(item) : null,

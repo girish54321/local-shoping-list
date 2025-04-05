@@ -7,7 +7,6 @@ import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/modal/addCommonItems.dart';
 import 'package:local_app/modal/common_items.dart';
-import 'package:local_app/modal/operation_response.dart';
 
 class AutoComplet extends StatefulWidget {
   final bool isOwner;
@@ -30,19 +29,16 @@ class _AutoCompletState extends State<AutoComplet> {
   final SettingController settingController = Get.find();
   final ShopingListController shopingListController = Get.find();
 
-  void getAllItems() {
+  Future<void> getAllItems() async {
     if (settingController.offlineMode.value) {
       return;
     }
-    Future<Result> result = apiResponse.getCommonItems();
-    result.then((value) {
-      if (value is SuccessState) {
-        var res = value.value as CommonItems;
-        setState(() {
-          items = res.items as List<CommonItemsItems>;
-        });
-      } else {}
-    });
+    var result = await apiResponse.getCommonItems();
+    if (result.status == LoadingStatus.success) {
+      setState(() {
+        items = result.data!.items! as List<CommonItemsItems>;
+      });
+    }
   }
 
   Future<void> confiemAdd(String text) async {

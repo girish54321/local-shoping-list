@@ -27,21 +27,18 @@ class _SavedItemsListState extends State<SavedItemsList> {
     initialRefresh: false,
   );
 
-  void getAllItems() {
+  Future<void> getAllItems() async {
     if (settingController.offlineMode.value) {
       return;
     }
     refreshController.footerMode?.value = LoadStatus.idle;
     refreshController.refreshCompleted();
-    Future<Result> result = apiResponse.getCommonItems();
-    result.then((value) {
-      if (value is SuccessState) {
-        var res = value.value as CommonItems;
-        setState(() {
-          items = res.items as List<CommonItemsItems>;
-        });
-      } else {}
-    });
+    var result = await apiResponse.getCommonItems();
+    if (result.status == LoadingStatus.success) {
+      setState(() {
+        items = result.data?.items as List<CommonItemsItems>;
+      });
+    }
   }
 
   @override

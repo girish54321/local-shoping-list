@@ -61,15 +61,11 @@ class _LoginScreenState extends State<SignUpScreen> {
         "lastName": lastNameNameController.text,
       };
 
-      Future<Result> result = apiResponse.signUpUser(parameter);
-      result.then((value) {
-        if (value is SuccessState) {
-          Helper().hideLoading();
-          var res = value.value as UserLoginResponse;
-          box.write('token', res.accessToken);
-          Get.off(MainHomeScreen());
-        }
-      });
+      var result = await apiResponse.signUpUser(parameter);
+      if (result.status == LoadingStatus.success) {
+        box.write('token', result.data?.accessToken);
+        Get.off(MainHomeScreen());
+      }
     } else {
       // Helper().vibratPhone();
     }
