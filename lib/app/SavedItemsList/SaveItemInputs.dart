@@ -7,7 +7,6 @@ import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/modal/addCommonItems.dart';
 import 'package:local_app/modal/common_items.dart';
-import 'package:local_app/modal/operation_response.dart';
 import 'package:rules/rules.dart';
 
 class SaveItemInputs extends StatefulWidget {
@@ -38,8 +37,8 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
 
   @override
   void initState() {
-    super.initState();
     autoFill();
+    super.initState();
   }
 
   void autoFill() {
@@ -180,7 +179,7 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
                           text,
                           name: 'Quantity',
                           isRequired: true,
-                          greaterThan: 1,
+                          greaterThan: 0,
                         );
                         if (rule.hasError) {
                           return rule.error;
@@ -206,7 +205,7 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
                           text,
                           name: 'Price',
                           isRequired: true,
-                          greaterThan: 1,
+                          greaterThan: 0,
                         );
                         if (rule.hasError) {
                           return rule.error;

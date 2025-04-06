@@ -64,7 +64,6 @@ class _LoginScreenState extends State<LoginScreen> {
       if (result.status == LoadingStatus.success) {
         box.write('token', result.data?.accessToken);
         Get.off(MainHomeScreen());
-        shopingListController.loadCompletedShopingList();
       }
     } else {
       // Helper().vibratPhone();

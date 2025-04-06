@@ -6,9 +6,9 @@ import 'package:local_app/Networking/unti/nothing.dart';
 import 'package:local_app/Networking/unti/request_type.dart';
 
 class ReqResClient {
-  // static const String _baseUrl = "http://192.168.0.195:2000/api/v1";
-  static const String _baseUrl =
-      "https://shoping-list-api-deploy.onrender.com/api/v1";
+  static const String _baseUrl = "http://192.168.0.195:2000/api/v1";
+  // static const String _baseUrl =
+  //     "https://shoping-list-api-deploy.onrender.com/api/v1";
   final Client _client;
   GetStorage box = GetStorage();
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
 import 'package:local_app/Helper/helper.dart';
+import 'package:local_app/Helper/loadingListView.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/SavedItemsList/SaveItemInputs.dart';
@@ -32,9 +33,10 @@ class _SavedItemsListState extends State<SavedItemsList> {
     if (settingController.offlineMode.value) {
       return;
     }
-    // refreshController.footerMode?.value = LoadStatus.idle;
+    setState(() {
+      items = LoadingState<List<CommonItemsItems>>.loading();
+    });
     refreshController.headerMode?.value = RefreshStatus.refreshing;
-    refreshController.refreshCompleted();
     var result = await apiResponse.getCommonItems();
     if (result.status == LoadingStatus.success) {
       setState(() {
@@ -47,8 +49,9 @@ class _SavedItemsListState extends State<SavedItemsList> {
       setState(() {
         items = LoadingState<List<CommonItemsItems>>.error(result.errorMessage);
       });
-      refreshController.headerMode?.value = RefreshStatus.failed;
     }
+    refreshController.refreshCompleted();
+    setState(() {});
   }
 
   @override
@@ -83,14 +86,22 @@ class _SavedItemsListState extends State<SavedItemsList> {
         onRefresh: () {
           getAllItems();
         },
-        child: ListView.builder(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          itemCount: items.data?.length,
-          itemBuilder: (context, index) {
-            var listItem = items.data?[index];
-            return SaveItemInputs(item: listItem, reloadList: getAllItems);
-          },
-        ),
+        child:
+            items.status == LoadingStatus.loading
+                ? LoadingListView()
+                : ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  itemCount: items.data?.length,
+                  itemBuilder: (context, index) {
+                    var listItem = items.data?[index];
+                    print("In List");
+                    print(listItem?.itemName ?? "");
+                    return SaveItemInputs(
+                      item: listItem,
+                      reloadList: getAllItems,
+                    );
+                  },
+                ),
         onLoading: () {},
       ),
     );

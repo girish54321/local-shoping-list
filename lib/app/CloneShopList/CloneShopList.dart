@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Helper/cloneShopList.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:local_app/modal/all_shop_list_items.dart';
@@ -36,11 +37,20 @@ class _CloneShopListState extends State<CloneShopList> {
           }),
           SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () {
-              CloneShoplistHelper().cloneShopListMain(
-                widget.shoppingListModel!,
-                widget.allItems,
+            onPressed: () async {
+              final action = await Dialogs.yesAbortDialog(
+                context,
+                'Clone?',
+                'Are you sure?',
               );
+              if (action == DialogAction.yes) {
+                Future.delayed(const Duration(seconds: 1), () {
+                  CloneShoplistHelper().cloneShopListMain(
+                    widget.shoppingListModel!,
+                    widget.allItems,
+                  );
+                });
+              }
             },
             child: Text("Clone"),
           ),

@@ -72,8 +72,6 @@ class _AddShopingItemState extends State<AddShopingItem>
   void loadListItem() {
     shopingListController.getShopingListItemCompleted();
     shopingListController.getShopingListItemInProgress();
-    shopingListController.loadCompletedShopingList();
-    shopingListController.loadInProgressShopingList();
   }
 
   @override
@@ -247,6 +245,7 @@ class _AddShopingItemState extends State<AddShopingItem>
         }
       },
       itemBuilder: (BuildContext context) {
+        var offline = settingController.offlineMode.value;
         return [
           AppMenuItem(
             "edit",
@@ -259,13 +258,14 @@ class _AddShopingItemState extends State<AddShopingItem>
               title: Text("Delete"),
             ),
           ),
-          AppMenuItem(
-            "clone",
-            const ListTile(
-              leading: Icon(Icons.offline_pin_outlined, color: Colors.green),
-              title: Text("Clone"),
+          if (item == null && !offline)
+            AppMenuItem(
+              "clone",
+              const ListTile(
+                leading: Icon(Icons.offline_pin_outlined, color: Colors.green),
+                title: Text("Clone"),
+              ),
             ),
-          ),
         ].map((AppMenuItem choice) {
           return PopupMenuItem<String>(value: choice.id, child: choice.widget);
         }).toList();
