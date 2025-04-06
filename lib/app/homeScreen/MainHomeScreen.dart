@@ -35,9 +35,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
       return Obx(() {
         final state = globalController.inprogressShopingList.value;
 
-        if (state.status == LoadingStatus.loading) {
-          return LoadingListView();
-        } else if (state.status == LoadingStatus.error) {
+        if (state.status == LoadingStatus.error) {
           return ErrorView(
             errorMessage: state.errorMessage,
             onRetry: () {
@@ -58,9 +56,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
       return Obx(() {
         final state = globalController.completedShopingList.value;
 
-        if (state.status == LoadingStatus.loading) {
-          return LoadingListView();
-        } else if (state.status == LoadingStatus.error) {
+        if (state.status == LoadingStatus.error) {
           return ErrorView(
             errorMessage: state.errorMessage,
             onRetry: () {
@@ -88,8 +84,8 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
 
   @override
   void initState() {
+    // globalController.loadEverything();
     super.initState();
-    globalController.loadEverything();
   }
 
   @override

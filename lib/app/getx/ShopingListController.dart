@@ -96,7 +96,6 @@ class ShopingListController extends GetxController {
   //* Load the completed shoping list
   Future<void> loadCompletedShopingList() async {
     completedShopingList.value = LoadingState.loading();
-    completedShopingList.value = LoadingState.loading();
     if (settingController.offlineMode.value) {
       //* Load data from local database
       var data = await _databaseService.getShopingList(true);

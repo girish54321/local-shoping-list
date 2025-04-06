@@ -11,6 +11,7 @@ import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/AddItems/add_items_screen.dart';
+import 'package:local_app/app/CloneShopList/CloneShopList.dart';
 import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
 import 'package:local_app/app/ShareUserListScreen/ShareUserListScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
@@ -195,9 +196,26 @@ class _AddShopingItemState extends State<AddShopingItem>
                 ? true
                 : false;
 
+        if (val == "clone" && !offline) {
+          var completedList =
+              shopingListController.completedShopingListItem.value;
+          var inprogressList =
+              shopingListController.inprogressShopingListItem.value;
+          var allItems = [...?completedList.data, ...?inprogressList.data];
+          Helper().goToPage(
+            context: context,
+            child: CloneShopList(
+              allItems: allItems,
+              shoppingListModel: widget.shoppingListModel,
+            ),
+          );
+          return;
+        }
+
         if (!allowAction) {
           return;
         }
+
         if (val == "edit") {
           if (item != null) {
             shopingListController.selecteListItemStateID(
@@ -239,6 +257,13 @@ class _AddShopingItemState extends State<AddShopingItem>
             const ListTile(
               leading: Icon(Icons.delete, color: Colors.red),
               title: Text("Delete"),
+            ),
+          ),
+          AppMenuItem(
+            "clone",
+            const ListTile(
+              leading: Icon(Icons.offline_pin_outlined, color: Colors.green),
+              title: Text("Clone"),
             ),
           ),
         ].map((AppMenuItem choice) {

@@ -21,7 +21,11 @@ class _ErrorViewState extends State<ErrorView> {
           children: [
             Icon(Icons.error_outline_outlined, size: 33),
             SizedBox(height: 16),
-            Text(widget.errorMessage ?? "", style: TextStyle(fontSize: 22)),
+            Text(
+              widget.errorMessage ?? "",
+              style: TextStyle(fontSize: 22),
+              textAlign: TextAlign.center,
+            ),
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
