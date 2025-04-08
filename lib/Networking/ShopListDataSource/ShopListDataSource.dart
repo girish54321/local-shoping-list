@@ -140,6 +140,7 @@ class ShopListDataSource {
         requestType: RequestType.DELETE,
         path:
             "${APIPathHelper.getValue(APIPath.deleteShopListItem)}/$shopItemId",
+        parameter: {},
       );
       DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -164,6 +165,7 @@ class ShopListDataSource {
       final response = await client.request(
         requestType: RequestType.DELETE,
         path: "${APIPathHelper.getValue(APIPath.deleteShopList)}/$shopListID",
+        parameter: {},
       );
       DialogHelper.hideLoading();
       if (response.statusCode == 200 || response.statusCode == 201) {

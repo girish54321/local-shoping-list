@@ -324,6 +324,7 @@ class ShopingListController extends GetxController {
       selectedState.value.remoteShopListID ?? "",
     );
     if (result.status == LoadingStatus.success) {
+      Helper().goBack();
       loadCompletedShopingList();
       loadInProgressShopingList();
     }
