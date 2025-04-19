@@ -405,6 +405,7 @@ class ShopingListController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+    loadEverything();
   }
 
   @override
