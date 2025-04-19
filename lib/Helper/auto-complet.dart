@@ -4,7 +4,7 @@ import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/getx/SettingController.dart';
-import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/modal/addCommonItems.dart';
 import 'package:local_app/modal/common_items.dart';
 
@@ -27,7 +27,7 @@ class _AutoCompletState extends State<AutoComplet> {
   TextEditingController? itemName = TextEditingController();
 
   final SettingController settingController = Get.find();
-  final ShopingListController shopingListController = Get.find();
+  final ShoppingController shopingListController = Get.find();
 
   Future<void> getAllItems() async {
     if (settingController.offlineMode.value) {

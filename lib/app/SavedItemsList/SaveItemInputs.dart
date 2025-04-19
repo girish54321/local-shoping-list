@@ -4,7 +4,7 @@ import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
-import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/modal/addCommonItems.dart';
 import 'package:local_app/modal/common_items.dart';
 import 'package:rules/rules.dart';
@@ -28,7 +28,7 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
   CommonItemsItems? inputState;
   final _formKey = GlobalKey<FormState>();
 
-  final ShopingListController shopingListController = Get.find();
+  final ShoppingController shopingListController = Get.find();
 
   TextEditingController nameTextEditingController = TextEditingController();
   TextEditingController quantityTextEditingController = TextEditingController();

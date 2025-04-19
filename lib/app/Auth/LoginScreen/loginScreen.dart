@@ -7,7 +7,7 @@ import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/Auth/LoginScreen/loginScreenUI.dart';
 import 'package:local_app/app/Auth/SignUpScreen/SignUpScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
-import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/app/homeScreen/MainHomeScreen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -23,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  final ShopingListController shopingListController = Get.find();
+  final ShoppingController shoppingController = Get.find();
   final SettingController settingController = Get.find();
 
   bool validEmail = false, validPassword = false, rememberMe = true;
@@ -32,13 +32,13 @@ class _LoginScreenState extends State<LoginScreen> {
     Helper().goBack();
   }
 
-  void changeVaildEmail(bool value) {
+  void changeValidEmail(bool value) {
     setState(() {
       validEmail = value;
     });
   }
 
-  void changevalidPassword(bool value) {
+  void changeValidPassword(bool value) {
     setState(() {
       validPassword = value;
     });
@@ -65,9 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
         box.write('token', result.data?.accessToken);
         Get.off(MainHomeScreen());
       }
-    } else {
-      // Helper().vibratPhone();
-    }
+    } else {}
   }
 
   void skipLogin() {

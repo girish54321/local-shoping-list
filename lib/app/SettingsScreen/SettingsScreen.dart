@@ -6,7 +6,7 @@ import 'package:local_app/Networking/unti/AppConst.dart';
 import 'package:local_app/app/Auth/LoginScreen/loginScreen.dart';
 import 'package:local_app/app/SavedItemsList/SavedItemsList.dart';
 import 'package:local_app/app/getx/SettingController.dart';
-import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/app/getx/ShoppingController.dart';
 
 class SettingsScreen extends StatefulWidget {
   SettingsScreen({Key? key}) : super(key: key);
@@ -19,8 +19,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final SettingController settingController = GetInstance()
       .put<SettingController>(SettingController());
 
-  final ShopingListController shopingListController = GetInstance()
-      .put<ShopingListController>(ShopingListController());
+  final ShoppingController shopingListController = GetInstance()
+      .put<ShoppingController>(ShoppingController());
   GetStorage box = GetStorage();
 
   void logout() {

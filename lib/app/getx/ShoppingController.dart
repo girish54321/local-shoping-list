@@ -24,7 +24,7 @@ class SelectedShopList {
   });
 }
 
-class ShopingListController extends GetxController {
+class ShoppingController extends GetxController {
   final DatabaseService _databaseService = DatabaseService.databaseService;
 
   final SettingController settingController = Get.find();

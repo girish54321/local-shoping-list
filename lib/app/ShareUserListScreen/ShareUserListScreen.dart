@@ -4,7 +4,7 @@ import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
-import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/modal/user_email_list_response.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 
@@ -16,7 +16,7 @@ class ShareUserListScreen extends StatefulWidget {
 }
 
 class _ShareUserListScreenState extends State<ShareUserListScreen> {
-  final ShopingListController shopingListController = Get.find();
+  final ShoppingController shopingListController = Get.find();
 
   //* Reload  List
   RefreshController refreshController = RefreshController(

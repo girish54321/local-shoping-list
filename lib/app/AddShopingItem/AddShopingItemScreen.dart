@@ -15,7 +15,7 @@ import 'package:local_app/app/CloneShopList/CloneShopList.dart';
 import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
 import 'package:local_app/app/ShareUserListScreen/ShareUserListScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
-import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:local_app/modal/all_shop_list_items.dart';
 import 'package:local_app/modal/common_items.dart';
@@ -40,7 +40,7 @@ class _AddShopingItemState extends State<AddShopingItem>
   late TabController _tabController;
   final DatabaseService databaseService = DatabaseService.databaseService;
 
-  final ShopingListController shopingListController = Get.find();
+  final ShoppingController shopingListController = Get.find();
   final SettingController settingController = Get.find();
 
   ShopListDataSource apiResponse = ShopListDataSource();

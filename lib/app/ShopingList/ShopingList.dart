@@ -6,7 +6,7 @@ import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/app/AddShopingItem/AddShopingItemScreen.dart';
 import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
 import 'package:local_app/app/getx/SettingController.dart';
-import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 
@@ -20,7 +20,7 @@ class ShopingList extends StatefulWidget {
 }
 
 class _ShopingListState extends State<ShopingList> {
-  final ShopingListController shopingListController = Get.find();
+  final ShoppingController shopingListController = Get.find();
   final SettingController settingController = Get.find();
 
   //* Reload  List

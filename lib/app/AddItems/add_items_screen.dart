@@ -4,7 +4,7 @@ import 'package:get/instance_manager.dart';
 import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/appInputText.dart';
 import 'package:local_app/Helper/buttons.dart';
-import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/modal/all_shop_list_items.dart';
 
 class AddItemsScreen extends StatefulWidget {
@@ -19,7 +19,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
   TextEditingController? itemName = TextEditingController();
   TextEditingController? quantity = TextEditingController();
   TextEditingController? price = TextEditingController();
-  final ShopingListController shopingListController = Get.find();
+  final ShoppingController shopingListController = Get.find();
 
   final DatabaseService _databaseService = DatabaseService.databaseService;
 

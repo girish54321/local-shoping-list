@@ -7,7 +7,7 @@ import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/MySharedUserList/MySharedUserList.dart';
 import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 import 'package:local_app/app/ShopingList/ShopingList.dart';
-import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/app/getx/ShoppingController.dart';
 
 class MainHomeScreen extends StatefulWidget {
   const MainHomeScreen({super.key});
@@ -17,7 +17,7 @@ class MainHomeScreen extends StatefulWidget {
 }
 
 class _MainHomeScreenState extends State<MainHomeScreen> {
-  final ShopingListController globalController = Get.find();
+  final ShoppingController globalController = Get.find();
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
