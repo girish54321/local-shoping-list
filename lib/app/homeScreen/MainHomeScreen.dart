@@ -35,6 +35,10 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
       return Obx(() {
         final state = globalController.inprogressShopingList.value;
 
+        if (state.status == LoadingStatus.loading) {
+          return LoadingListView();
+        }
+
         if (state.status == LoadingStatus.error) {
           return ErrorView(
             errorMessage: state.errorMessage,
@@ -55,6 +59,10 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
       // return Obx(
       return Obx(() {
         final state = globalController.completedShopingList.value;
+
+        if (state.status == LoadingStatus.loading) {
+          return LoadingListView();
+        }
 
         if (state.status == LoadingStatus.error) {
           return ErrorView(

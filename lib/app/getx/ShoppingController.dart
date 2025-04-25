@@ -103,11 +103,14 @@ class ShoppingController extends GetxController {
       completedShopingList.refresh();
       return;
     }
-    var result = apiResponse.getShopList({"isCompleted": "isCompleted"});
-    result.then((value) {
-      completedShopingList.value = LoadingState.success(loopItem(value.data!));
+    var result = await apiResponse.getShopList({"isCompleted": "isCompleted"});
+    if (result.status == LoadingStatus.success) {
+      completedShopingList.value = LoadingState.success(loopItem(result.data!));
       completedShopingList.refresh();
-    });
+    } else {
+      completedShopingList.value = LoadingState.error(result.errorMessage);
+      completedShopingList.refresh();
+    }
   }
 
   //* Load the inprogress shoping list list
@@ -117,7 +120,7 @@ class ShoppingController extends GetxController {
       // Load data from local database
       var data = await _databaseService.getShopingList(false);
       inprogressShopingList.value = LoadingState.success(data);
-      completedShopingList.refresh();
+      inprogressShopingList.refresh();
       return;
     }
     //* Remot data
