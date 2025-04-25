@@ -1,42 +1,47 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:local_app/Networking/modal/error_modal.dart';
 
 class DialogHelper {
   //show error dialog
   static void showErrorDialog({
-    String title = 'Error',
+    String? title = 'Error',
     String? description = 'Something went wrong',
+    ErrorModalError? error,
+    bool isError = true,
   }) {
-    Get.dialog(
-      GetPlatform.isAndroid
-          ? AlertDialog(
-            title: Text(title),
-            content: Text(description ?? ""),
-            actions: [
-              TextButton(
-                child: const Text('Approve'),
-                onPressed: () {
-                  Get.until((route) => !Get.isDialogOpen!);
-                },
-              ),
-            ],
-            scrollable: true,
-          )
-          : CupertinoAlertDialog(
-            title: Text(title),
-            content: Text(description ?? ""),
-            actions: [
-              TextButton(
-                child: const Text('Approve'),
-                onPressed: () {
-                  Get.until((route) => !Get.isDialogOpen!);
-                },
-              ),
-            ],
-          ),
-      barrierDismissible: true,
-    );
+    Future.delayed(const Duration(milliseconds: 300), () {
+      Get.dialog(
+        GetPlatform.isAndroid
+            ? AlertDialog(
+              title: Text(isError ? "Error: ${error?.status}" : "Success"),
+              content: Text(error?.message ?? description!),
+              actions: [
+                TextButton(
+                  child: const Text('Okay'),
+                  onPressed: () {
+                    Get.until((route) => !Get.isDialogOpen!);
+                  },
+                ),
+              ],
+              scrollable: true,
+            )
+            : CupertinoAlertDialog(
+              title: Text("Error: ${error?.status}"),
+              content: Text(error?.message ?? description!),
+              actions: [
+                TextButton(
+                  child: const Text('Okay'),
+                  onPressed: () {
+                    Get.until((route) => !Get.isDialogOpen!);
+                  },
+                ),
+              ],
+            ),
+        barrierDismissible: true,
+      );
+    });
   }
 
   //show toast

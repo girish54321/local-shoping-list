@@ -6,8 +6,8 @@ import 'package:local_app/Networking/modal/main_shop_list.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
+import 'package:local_app/modal/addCommonItems.dart';
 import 'package:local_app/modal/all_shop_list_items.dart';
-import 'package:local_app/modal/operation_response.dart';
 
 class SelectedShopList {
   int? localShopListID;
@@ -24,26 +24,31 @@ class SelectedShopList {
   });
 }
 
-class ShopingListController extends GetxController {
+class ShoppingController extends GetxController {
   final DatabaseService _databaseService = DatabaseService.databaseService;
 
   final SettingController settingController = Get.find();
 
   ShopListDataSource apiResponse = ShopListDataSource();
 
-  Rx<List<MainShopListItem?>?> completedShopingList =
-      Rx<List<MainShopListItem>>([]);
-  Rx<List<MainShopListItem?>?> inprogressShopingList =
-      Rx<List<MainShopListItem>>([]);
+  Rx<LoadingState<List<MainShopListItem>>> completedShopingList =
+      Rx<LoadingState<List<MainShopListItem>>>(LoadingState.loading());
 
-  Rx<List<ShopListItems?>?> completedShopingListItem = Rx<List<ShopListItems>>(
-    [],
-  );
-  Rx<List<ShopListItems?>?> inprogressShopingListItem = Rx<List<ShopListItems>>(
-    [],
-  );
+  Rx<LoadingState<List<MainShopListItem>>> inprogressShopingList =
+      Rx<LoadingState<List<MainShopListItem>>>(LoadingState.loading());
+
+  Rx<LoadingState<List<ShopListItems>>> completedShopingListItem =
+      Rx<LoadingState<List<ShopListItems>>>(LoadingState.loading());
+
+  Rx<LoadingState<List<ShopListItems>>> inprogressShopingListItem =
+      Rx<LoadingState<List<ShopListItems>>>(LoadingState.loading());
+
+  Rx<List<SharedUserList?>> sharedUserList = Rx<List<SharedUserList>>([]);
+
+  Rx<List<SharedUserList?>> mySharedList = Rx<List<SharedUserList>>([]);
 
   Rx<SelectedShopList> selectedState = SelectedShopList().obs;
+  RxBool isOwner = RxBool(false);
 
   void selecteShopListID(int? selecteLocalListID, String? selectRemoteListID) {
     if (selecteLocalListID != null) {
@@ -70,105 +75,94 @@ class ShopingListController extends GetxController {
     }
   }
 
-  void addNewShopList(String title, String description) {
+  Future<void> addNewShopList(String title, String description) async {
+    var item = MainShopListItem(shopListName: title, description: description);
     if (settingController.offlineMode.value) {
-      _databaseService.createShopingList(
-        MainShopListItem(shopListName: title, description: description),
-      );
+      _databaseService.createShopingList(item);
       Helper().goBack();
       loadCompletedShopingList();
       loadInProgressShopingList();
       return;
     }
 
-    Future<Result> result = apiResponse.createShopList({
-      "shopListName": title,
-      "description": description,
-    });
-    result.then((value) {
-      if (value is SuccessState) {
-        Helper().hideLoading();
-        var res = value.value as OperationResponse;
-        if (res.success == true) {
-          Helper().goBack();
-          loadCompletedShopingList();
-          loadInProgressShopingList();
-        }
-      }
-    });
+    var result = await apiResponse.createShopList(item.toJson());
+    if (result.status == LoadingStatus.success) {
+      Helper().goBack();
+      loadCompletedShopingList();
+      loadInProgressShopingList();
+    }
   }
 
   //* Load the completed shoping list
   Future<void> loadCompletedShopingList() async {
+    completedShopingList.value = LoadingState.loading();
     if (settingController.offlineMode.value) {
       //* Load data from local database
       var data = await _databaseService.getShopingList(true);
-      completedShopingList.value = data;
+      completedShopingList.value = LoadingState.success(data);
       completedShopingList.refresh();
       return;
     }
-    Future<Result> result = apiResponse.getShopList({
-      "isCompleted": "isCompleted",
-    });
+    var result = apiResponse.getShopList({"isCompleted": "isCompleted"});
     result.then((value) {
-      if (value is SuccessState) {
-        Helper().hideLoading();
-        var res = value.value as AllShopListMain;
-        completedShopingList.value = loopItem(res);
-        completedShopingList.refresh();
-      } else {}
+      completedShopingList.value = LoadingState.success(loopItem(value.data!));
+      completedShopingList.refresh();
     });
   }
 
   //* Load the inprogress shoping list list
   Future<void> loadInProgressShopingList() async {
+    inprogressShopingList.value = LoadingState.loading();
     if (settingController.offlineMode.value) {
       // Load data from local database
       var data = await _databaseService.getShopingList(false);
-      inprogressShopingList.value = data;
+      inprogressShopingList.value = LoadingState.success(data);
       completedShopingList.refresh();
       return;
     }
     //* Remot data
-    Future<Result> result = apiResponse.getShopList({"isCompleted": ""});
-    result.then((value) {
-      if (value is SuccessState) {
-        Helper().hideLoading();
-        var res = value.value as AllShopListMain;
-        inprogressShopingList.value = loopItem(res);
-        inprogressShopingList.refresh();
-      } else {}
-    });
+    var result = await apiResponse.getShopList({"isCompleted": ""});
+
+    if (result.status == LoadingStatus.success) {
+      inprogressShopingList.value = LoadingState.success(
+        loopItem(result.data!),
+      );
+      inprogressShopingList.refresh();
+    } else {
+      inprogressShopingList.value = LoadingState.error(result.errorMessage);
+      inprogressShopingList.refresh();
+    }
   }
 
   //* Load the shoping list item list for a selected shop list
   void getShopingListItemInProgress() async {
     //* Load Local data from local database
+    inprogressShopingListItem.value = LoadingState.loading();
     if (settingController.offlineMode.value) {
       var data = await _databaseService.getShopingListItem(
         selectedState.value.localShopListID ?? 1,
         false,
       );
-      inprogressShopingListItem.value = data;
+      inprogressShopingListItem.value = LoadingState.success(data);
       inprogressShopingListItem.refresh();
       return;
     }
     //* Load Remort data
-    Future<Result> result = apiResponse.getShopListItem(
+    var result = await apiResponse.getShopListItem(
       selectedState.value.remoteShopListID ?? "",
       {"isCompleted": ""},
     );
-    result.then((value) {
-      if (value is SuccessState) {
-        Helper().hideLoading();
-        var apiItem = value.value as AllShopListItems;
-        inprogressShopingListItem.value = loopShopListItem(apiItem);
-        inprogressShopingListItem.refresh();
-      } else {}
-    });
+
+    if (result.status == LoadingStatus.success) {
+      inprogressShopingListItem.value = LoadingState.success(
+        loopShopListItem(result.data!),
+      );
+      inprogressShopingListItem.refresh();
+      getSharedUserList();
+    }
   }
 
-  void updateShopListItem(ShopListItems item) {
+  Future<void> updateShopListItem(ShopListItems item) async {
     if (settingController.offlineMode.value) {
       _databaseService.updateItem(item);
       getShopingListItemInProgress();
@@ -177,27 +171,22 @@ class ShopingListController extends GetxController {
       return;
     }
 
-    Future<Result> result = apiResponse.updateShopListItem({
+    var result = await apiResponse.updateShopListItem({
       "itemId": selectedState.value.remoteShopListItemID,
       "itemName": item.itemName,
       "description": item.description,
       "quantity": item.quantity,
       "price": item.price,
     });
-    result.then((value) {
-      if (value is SuccessState) {
-        Helper().hideLoading();
-        var res = value.value as OperationResponse;
-        if (res.success == true) {
-          getShopingListItemInProgress();
-          getShopingListItemCompleted();
-          Helper().goBack();
-        }
-      }
-    });
+
+    if (result.status == LoadingStatus.success) {
+      getShopingListItemInProgress();
+      getShopingListItemCompleted();
+      Helper().goBack();
+    }
   }
 
-  void createShopListItem(ShopListItems item) {
+  Future<void> createShopListItem(ShopListItems item) async {
     if (settingController.offlineMode.value) {
       _databaseService.addItemToShopingList(item);
       getShopingListItemInProgress();
@@ -205,21 +194,11 @@ class ShopingListController extends GetxController {
       return;
     }
 
-    Future<Result> result = apiResponse.createShopListItem({
-      "shopListId": selectedState.value.remoteShopListID,
-      "itemName": item.itemName,
-      "description": item.description,
-    });
-    result.then((value) {
-      if (value is SuccessState) {
-        Helper().hideLoading();
-        var res = value.value as OperationResponse;
-        if (res.success == true) {
-          getShopingListItemInProgress();
-          getShopingListItemCompleted();
-        }
-      }
-    });
+    var result = await apiResponse.createShopListItem(item.toJson());
+    if (result.status == LoadingStatus.success) {
+      getShopingListItemInProgress();
+      getShopingListItemCompleted();
+    }
   }
 
   List<ShopListItems> loopShopListItem(AllShopListItems apiItem) {
@@ -241,7 +220,11 @@ class ShopingListController extends GetxController {
     return item;
   }
 
-  void updateItemState(ShopListItems? value, bool? state) {
+  Future<void> addNewSavedItem(AddCommonItems item) async {
+    var result = await apiResponse.addCommonItems(item.toJson());
+  }
+
+  Future<void> updateItemState(ShopListItems? value, bool? state) async {
     //* completeShopingListItem
     if (settingController.offlineMode.value) {
       _databaseService.completeShopingListItem(
@@ -252,46 +235,46 @@ class ShopingListController extends GetxController {
       getShopingListItemCompleted();
       return;
     }
-    Future<Result> result = apiResponse.updateShopListItemState({
+
+    var result = await apiResponse.updateShopListItemState({
       "itemId": value?.shopListItemsId,
       "isCompleted": state,
     });
-    result.then((value) {
-      if (value is SuccessState) {
-        Helper().hideLoading();
-        var res = value.value as OperationResponse;
-        if (res.success == true) {
-          getShopingListItemInProgress();
-          getShopingListItemCompleted();
-        }
-      }
-    });
+
+    if (result.status == LoadingStatus.success) {
+      getShopingListItemInProgress();
+      getShopingListItemCompleted();
+    }
   }
 
   //* Load the shoping list item list for a selected shop list
   void getShopingListItemCompleted() async {
     //* Load Local data from local database
+    inprogressShopingListItem.value = LoadingState.loading();
     if (settingController.offlineMode.value) {
       var data = await _databaseService.getShopingListItem(
         selectedState.value.localShopListID ?? 1,
         true,
       );
-      completedShopingListItem.value = data;
+      completedShopingListItem.value = LoadingState.success(data);
       completedShopingListItem.refresh();
       return;
     }
-    Future<Result> result = apiResponse.getShopListItem(
+    var result = await apiResponse.getShopListItem(
       selectedState.value.remoteShopListID ?? "",
       {"isCompleted": "isCompleted"},
     );
-    result.then((value) {
-      if (value is SuccessState) {
-        Helper().hideLoading();
-        var apiItem = value.value as AllShopListItems;
-        completedShopingListItem.value = loopShopListItem(apiItem);
-        completedShopingListItem.refresh();
-      } else {}
-    });
+    if (result.status == LoadingStatus.success) {
+      var apiItem = result.data;
+      isOwner.value = apiItem?.isOwner ?? true;
+      completedShopingListItem.value = LoadingState.success(
+        loopShopListItem(result.data!),
+      );
+      completedShopingListItem.refresh();
+    } else {
+      completedShopingListItem.value = LoadingState.error(result.errorMessage);
+      completedShopingListItem.refresh();
+    }
   }
 
   List<MainShopListItem> loopItem(AllShopListMain apiItem) {
@@ -302,13 +285,17 @@ class ShopingListController extends GetxController {
         shopListId: shopListItems?.shopListId,
         description: shopListItems?.description,
         shopListName: shopListItems?.shopListName,
+        isCompleted: shopListItems?.isCompleted,
       );
       item.add(loopItem);
     }
     return item;
   }
 
-  void deleteShopListItem(String? shopListItemID, int? localItemID) {
+  Future<void> deleteShopListItem(
+    String? shopListItemID,
+    int? localItemID,
+  ) async {
     //* Delete Local ShopListItem
     if (localItemID != null) {
       _databaseService.deleteItem(localItemID);
@@ -317,20 +304,14 @@ class ShopingListController extends GetxController {
       return;
     }
     //* Delete Remot ShopListItem
-    Future<Result> result = apiResponse.deleteShopListItem(shopListItemID);
-    result.then((value) {
-      if (value is SuccessState) {
-        Helper().hideLoading();
-        var res = value.value as OperationResponse;
-        if (res.success == true) {
-          getShopingListItemInProgress();
-          getShopingListItemCompleted();
-        }
-      }
-    });
+    var result = await apiResponse.deleteShopListItem(shopListItemID);
+    if (result.status == LoadingStatus.success) {
+      getShopingListItemInProgress();
+      getShopingListItemCompleted();
+    }
   }
 
-  void deleteShopList() {
+  Future<void> deleteShopList() async {
     //* Delete Local ShopListItem
     if (settingController.offlineMode.value) {
       _databaseService.deleteShopList(selectedState.value.localShopListID ?? 1);
@@ -339,23 +320,17 @@ class ShopingListController extends GetxController {
       Helper().goBack();
       return;
     }
-    Future<Result> result = apiResponse.deleteShopList(
+    var result = await apiResponse.deleteShopList(
       selectedState.value.remoteShopListID ?? "",
     );
-    result.then((value) {
-      if (value is SuccessState) {
-        Helper().hideLoading();
-        var res = value.value as OperationResponse;
-        if (res.success == true) {
-          Helper().goBack();
-          loadCompletedShopingList();
-          loadInProgressShopingList();
-        }
-      }
-    });
+    if (result.status == LoadingStatus.success) {
+      Helper().goBack();
+      loadCompletedShopingList();
+      loadInProgressShopingList();
+    }
   }
 
-  void updateShopList(MainShopListItem item) {
+  Future<void> updateShopList(MainShopListItem item) async {
     if (settingController.offlineMode.value) {
       _databaseService.updateShoplist(
         item,
@@ -366,37 +341,71 @@ class ShopingListController extends GetxController {
       loadInProgressShopingList();
       return;
     }
-    Future<Result> result = apiResponse.updateShopList({
-      "shopListId": selectedState.value.remoteShopListID ?? "",
-      "shopListName": item.shopListName,
-      "description": item.description,
-    });
-    result.then((value) {
-      if (value is SuccessState) {
-        Helper().hideLoading();
-        var res = value.value as OperationResponse;
-        if (res.success == true) {
-          Helper().goBack();
-          loadCompletedShopingList();
-          loadInProgressShopingList();
-        }
-      }
-    });
+    var result = await apiResponse.updateShopList(item.toJson());
+    if (result.status == LoadingStatus.success) {
+      Helper().goBack();
+      loadCompletedShopingList();
+      loadInProgressShopingList();
+    }
   }
 
-  @override
-  void onInit() {
+  Future<void> getSharedUserList() async {
+    if (settingController.offlineMode.value) {
+      //* Load Local data from local database
+      // var data = await _databaseService.getSharedUserList();
+      // sharedUserList.value = data;
+      // sharedUserList.refresh();
+      return;
+    }
+    var result = await apiResponse.getSharedUserList(
+      selectedState.value.remoteShopListID,
+    );
+    if (result.status == LoadingStatus.success) {
+      var apiItem = result.data;
+      sharedUserList.value = apiItem!.sharedUserList!;
+      sharedUserList.refresh();
+    }
+  }
+
+  Future<void> getMySharedList() async {
+    if (settingController.offlineMode.value) {
+      return;
+    }
+    var result = await apiResponse.getMySharedUserList();
+    if (result.status == LoadingStatus.success) {
+      var apiItem = result.data;
+      mySharedList.value = apiItem!.sharedUserList!;
+      mySharedList.refresh();
+    }
+  }
+
+  Future<void> shareShopList(String? userId) async {
+    if (settingController.offlineMode.value) {
+      //* Save shared user list to local database
+      // _databaseService.saveSharedUserList(sharedUserList.value);
+      return;
+    }
+    var result = await apiResponse.shareShopList({
+      "shopListId": selectedState.value.remoteShopListID,
+      "sharedUserId": userId,
+    });
+    if (result.status == LoadingStatus.success) {
+      getSharedUserList();
+    }
+  }
+
+  void loadEverything() {
     Future.delayed(const Duration(seconds: 2), () {
       loadCompletedShopingList();
       loadInProgressShopingList();
+      getMySharedList();
     });
-
-    super.onInit();
   }
 
   @override
   void onReady() {
     super.onReady();
+    loadEverything();
   }
 
   @override

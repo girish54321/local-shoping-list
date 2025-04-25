@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/instance_manager.dart';
 import 'package:local_app/Helper/appInputText.dart';
 import 'package:local_app/Helper/buttons.dart';
-import 'package:local_app/app/getx/ShopingListController.dart';
+import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 
 class Createshopinglist extends StatefulWidget {
@@ -16,7 +16,7 @@ class Createshopinglist extends StatefulWidget {
 class _CreateshopinglistState extends State<Createshopinglist> {
   TextEditingController nameController = TextEditingController();
   TextEditingController infoController = TextEditingController();
-  final ShopingListController shopingListController = Get.find();
+  final ShoppingController shopingListController = Get.find();
 
   void createList() async {
     if (nameController.text.isEmpty || infoController.text.isEmpty) {

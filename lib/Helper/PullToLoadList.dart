@@ -18,7 +18,7 @@ class PullToLoadList extends StatelessWidget {
   Widget build(BuildContext context) {
     return SmartRefresher(
       enablePullDown: true,
-      enablePullUp: true,
+      enablePullUp: false,
       controller: refreshController,
       onRefresh: onRefresh,
       onLoading: onLoading,

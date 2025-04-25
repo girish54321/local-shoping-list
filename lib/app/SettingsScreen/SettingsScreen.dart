@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/unti/AppConst.dart';
 import 'package:local_app/app/Auth/LoginScreen/loginScreen.dart';
+import 'package:local_app/app/SavedItemsList/SavedItemsList.dart';
 import 'package:local_app/app/getx/SettingController.dart';
+import 'package:local_app/app/getx/ShoppingController.dart';
 
 class SettingsScreen extends StatefulWidget {
   SettingsScreen({Key? key}) : super(key: key);
@@ -15,6 +18,9 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final SettingController settingController = GetInstance()
       .put<SettingController>(SettingController());
+
+  final ShoppingController shopingListController = GetInstance()
+      .put<ShoppingController>(ShoppingController());
   GetStorage box = GetStorage();
 
   void logout() {
@@ -24,12 +30,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Settings"),
-        actions: [IconButton(icon: Icon(Icons.logout), onPressed: logout)],
-      ),
-      body: Column(
+    return Obx(() {
+      return Column(
         children: [
           ListTile(
             leading: Icon(Icons.network_locked),
@@ -38,27 +40,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Obx(
               (() => Switch(
                 value: settingController.offlineMode.value,
-                onChanged: (bool val) => settingController.saveOfflineMode(val),
+                onChanged: (bool val) {
+                  settingController.saveOfflineMode(val);
+                  shopingListController.loadEverything();
+                },
               )),
             ),
           ),
-          Obx(() {
-            return ListTile(
-              leading: Icon(
-                settingController.isDark.value
-                    ? Icons.dark_mode
-                    : Icons.light_mode,
-              ),
-              title: Text("Theme"),
-              subtitle: Text("Change app theme"),
-              trailing: Switch(
-                value: settingController.isDark.value,
-                onChanged: (bool _) => settingController.toggleThem(),
-              ),
-            );
-          }),
+          ListTile(
+            leading: Icon(
+              settingController.isDark.value
+                  ? Icons.dark_mode
+                  : Icons.light_mode,
+            ),
+            title: Text("Theme"),
+            subtitle: Text("Change app theme"),
+            trailing: Switch(
+              value: settingController.isDark.value,
+              onChanged: (bool _) => settingController.toggleThem(),
+            ),
+          ),
+          ListTile(
+            onTap:
+                settingController.offlineMode.value == true
+                    ? null
+                    : () {
+                      Helper().goToPage(
+                        context: context,
+                        child: SavedItemsList(),
+                      );
+                    },
+            leading: Icon(Icons.checklist_outlined),
+            title: Text("Saved Items"),
+            subtitle:
+                !settingController.offlineMode.value
+                    ? Text("Access to your Coman Items")
+                    : Text("Not available in offline mode"),
+            trailing:
+                settingController.offlineMode.value
+                    ? Icon(Icons.no_accounts)
+                    : Icon(Icons.check),
+          ),
+          ListTile(
+            leading: Icon(Icons.exit_to_app),
+            title: Text("Logout"),
+            onTap: logout,
+          ),
         ],
-      ),
-    );
+      );
+    });
   }
 }

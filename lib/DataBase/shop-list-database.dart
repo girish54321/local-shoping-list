@@ -62,13 +62,14 @@ class DatabaseService {
   }
 
   //* Create Shoping list
-  void createShopingList(MainShopListItem item) async {
+  Future<int> createShopingList(MainShopListItem item) async {
     final db = await database;
-    await db.insert(shoppingListTable, {
+    var shopListID = await db.insert(shoppingListTable, {
       shoppingListTitle: item.shopListName,
       shoppingListDescription: item.description,
       shoppingListStatus: 1,
     });
+    return shopListID;
   }
 
   //* Make Shoping list "item" checked

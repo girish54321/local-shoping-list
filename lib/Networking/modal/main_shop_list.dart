@@ -84,6 +84,7 @@ class AllShopListMainAllShopLists {
   String? createdAt;
   String? updatedAt;
   String? userId;
+  bool? isCompleted;
   List<AllShopListMainAllShopListsShopListItems?>? shopListItems;
 
   AllShopListMainAllShopLists({
@@ -95,6 +96,7 @@ class AllShopListMainAllShopLists {
     this.updatedAt,
     this.userId,
     this.shopListItems,
+    this.isCompleted,
   });
   AllShopListMainAllShopLists.fromJson(Map<String, dynamic> json) {
     shopListId = json['shopListId']?.toString();
@@ -103,6 +105,7 @@ class AllShopListMainAllShopLists {
     state = json['state']?.toString();
     createdAt = json['createdAt']?.toString();
     updatedAt = json['updatedAt']?.toString();
+    isCompleted = json['isCompleted'];
     userId = json['userId']?.toString();
     if (json['shopListItems'] != null) {
       final v = json['shopListItems'];
@@ -121,6 +124,7 @@ class AllShopListMainAllShopLists {
     data['state'] = state;
     data['createdAt'] = createdAt;
     data['updatedAt'] = updatedAt;
+    data['isCompleted'] = isCompleted;
     data['userId'] = userId;
     if (shopListItems != null) {
       final v = shopListItems;

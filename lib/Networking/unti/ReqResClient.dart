@@ -6,7 +6,9 @@ import 'package:local_app/Networking/unti/nothing.dart';
 import 'package:local_app/Networking/unti/request_type.dart';
 
 class ReqResClient {
-  static const String _baseUrl = "http://192.168.0.195:2000/api/v1";
+  // static const String _baseUrl = "http://192.168.0.195:2000/api/v1";
+  static const String _baseUrl =
+      "https://shoping-list-api-deploy.onrender.com/api/v1";
   final Client _client;
   GetStorage box = GetStorage();
 
@@ -27,6 +29,8 @@ class ReqResClient {
       case RequestType.GET:
         var uri =
             _baseUrl + path + ((params != null) ? queryParameters(params) : "");
+        print("My request");
+        print(uri);
         return _client.get(Uri.parse(uri), headers: headers);
       case RequestType.POST:
         return _client.post(
@@ -41,12 +45,19 @@ class ReqResClient {
           body: json.encode(parameter),
         );
       case RequestType.DELETE:
-        return _client.delete(headers: headers, Uri.parse("$_baseUrl/$path"));
+        return _client.delete(
+          headers: headers,
+          Uri.parse("$_baseUrl/$path"),
+          body: json.encode(parameter),
+        );
     }
   }
 
   String queryParameters(Map<String, String> params) {
-    final jsonString = Uri(queryParameters: params);
-    return '?${jsonString.query}';
+    if (params != null) {
+      final jsonString = Uri(queryParameters: params);
+      return '?${jsonString.query}';
+    }
+    return '';
   }
 }
