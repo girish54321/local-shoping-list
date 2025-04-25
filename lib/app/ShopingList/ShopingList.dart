@@ -5,12 +5,13 @@ import 'package:local_app/Helper/PullToLoadList.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/app/AddShopingItem/AddShopingItemScreen.dart';
 import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
+import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
 
 class ShopingList extends StatefulWidget {
-  final List<ShoppingListModel?>? shoppingList;
+  final List<MainShopListItem?>? shoppingList;
   final bool isCompleted;
   const ShopingList({super.key, required this.isCompleted, this.shoppingList});
 
@@ -20,6 +21,7 @@ class ShopingList extends StatefulWidget {
 
 class _ShopingListState extends State<ShopingList> {
   final ShopingListController shopingListController = Get.find();
+  final SettingController settingController = Get.find();
 
   //* Reload  List
   RefreshController refreshController = RefreshController(
@@ -44,21 +46,28 @@ class _ShopingListState extends State<ShopingList> {
               : ListView.builder(
                 itemCount: widget.shoppingList?.length ?? 0,
                 itemBuilder: (context, index) {
-                  ShoppingListModel task = widget.shoppingList![index]!;
+                  MainShopListItem item = widget.shoppingList![index]!;
                   return ListTile(
                     leading: Icon(
                       Icons.checklist_rounded,
                       color: widget.isCompleted ? Colors.green : Colors.orange,
                     ),
                     onTap: () {
-                      shopingListController.selecteShopListID(task.id ?? 0);
+                      if (settingController.offlineMode.value) {
+                        shopingListController.selecteShopListID(item.id, null);
+                      } else {
+                        shopingListController.selecteShopListID(
+                          null,
+                          item.shopListId ?? "",
+                        );
+                      }
                       Helper().goToPage(
                         context: context,
-                        child: AddShopingItem(shopingList: task),
+                        child: AddShopingItem(shoppingListModel: item),
                       );
                     },
-                    title: Text(task.title ?? ""),
-                    subtitle: Text(task.description ?? ""),
+                    title: Text(item.shopListName ?? ""),
+                    subtitle: Text(item.description ?? ""),
                   );
                 },
               ),

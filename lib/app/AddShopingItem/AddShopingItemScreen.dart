@@ -1,17 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/state_manager.dart';
 import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/no_dat_view.dart';
 import 'package:local_app/Helper/helper.dart';
+import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/app/AddItems/AddItemsScreen.dart';
 import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
+import 'package:local_app/modal/all_shop_list_items.dart';
+
+class AppMenuItem {
+  final String id;
+  final Widget widget;
+  AppMenuItem(this.id, this.widget);
+}
 
 class AddShopingItem extends StatefulWidget {
-  final ShoppingListModel shopingList;
-  const AddShopingItem({super.key, required this.shopingList});
+  final MainShopListItem? shoppingListModel;
+  const AddShopingItem({super.key, this.shoppingListModel});
 
   @override
   State<AddShopingItem> createState() => _AddShopingItemState();
@@ -24,18 +34,32 @@ class _AddShopingItemState extends State<AddShopingItem>
   final ShopingListController shopingListController = Get.find();
 
   TextEditingController? itemName = TextEditingController();
-
+  ShopListDataSource apiResponse = ShopListDataSource();
+  final countries = [
+    'Argentina',
+    'Australia',
+    'Brazil',
+    'Canada',
+    'China',
+    'France',
+    'Germany',
+    'India',
+    'Indonesia',
+    'Italy',
+  ];
   void _addShopingItem(String itemName) {
-    var item = ShoppingListItemModel(
-      id: widget.shopingList.id,
-      name: itemName,
+    var item = ShopListItems(
+      id: shopingListController.selectedState.value.localShopListID,
+      shopListItemsId:
+          shopingListController.selectedState.value.remoteShopListID,
+      itemName: itemName,
       quantity: 1,
       price: 0,
-      status: 0,
+      state: 'not-completed',
     );
-    databaseService.addItemToShopingList(item);
-    loadListItem();
-    setState(() {});
+    shopingListController.createShopListItem(item);
+    var timer = Timer(Duration(seconds: 1), () => setState(() {}));
+    timer.cancel();
   }
 
   void loadListItem() {
@@ -64,6 +88,7 @@ class _AddShopingItemState extends State<AddShopingItem>
       var completedList = shopingListController.completedShopingListItem.value;
       var inprogressList =
           shopingListController.inprogressShopingListItem.value;
+
       return Stack(
         children: [
           (isCompletedList && completedList!.isEmpty ||
@@ -81,25 +106,87 @@ class _AddShopingItemState extends State<AddShopingItem>
                   return SizedBox();
                 }
                 return ListTile(
-                  title: TextField(
-                    controller: itemName,
-                    textInputAction: TextInputAction.go,
-                    onSubmitted: (value) {
-                      _addShopingItem(value);
-                      itemName?.text = "";
+                  title: Autocomplete<String>(
+                    fieldViewBuilder: (
+                      context,
+                      controller,
+                      focusNode,
+                      onEditingComplete,
+                    ) {
+                      itemName = controller;
+                      return TextField(
+                        controller: itemName,
+                        focusNode: focusNode,
+                        onEditingComplete: () {
+                          onEditingComplete();
+                        },
+                        decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              FocusScope.of(context).unfocus();
+                            },
+                            icon: Icon(Icons.close),
+                          ),
+                          hintText: "widget.hint",
+                          hintStyle: TextStyle(color: Colors.grey[400]),
+                        ),
+                        onSubmitted: (value) {
+                          print("Add this item");
+                          print(value);
+                          _addShopingItem(value);
+                          FocusScope.of(context).unfocus();
+                          itemName?.text = "";
+                        },
+                      );
                     },
-                    decoration: InputDecoration(
-                      labelText: "Enter your item name",
-                    ),
+                    optionsViewBuilder: (context, onSelected, options) {
+                      return Align(
+                        alignment: Alignment.topLeft,
+                        child: Material(
+                          elevation: 4,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(maxHeight: 200),
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: options.length,
+                              itemBuilder: (context, index) {
+                                final String option = options.elementAt(index);
+                                return ListTile(
+                                  title: Text(option),
+                                  onTap: () => onSelected(option),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text.isEmpty) {
+                        return countries;
+                      }
+
+                      return countries.where(
+                        (country) => country.toLowerCase().contains(
+                          textEditingValue.text.toLowerCase(),
+                        ),
+                      );
+                    },
+                    onSelected: (suggestion) {
+                      // handle user selection of a country
+                    },
                   ),
                 );
               }
-              ShoppingListItemModel? item =
+              ShopListItems? item =
                   isCompletedList
                       ? completedList![index - 1]
                       : inprogressList![index - 1];
+              bool isChecked = item?.state == 'completed' ? true : false;
+              print("item");
+              print(item?.quantity);
               return ListTile(
-                title: Text(item?.name ?? "Nice "),
+                title: Text(item?.itemName ?? "NA"),
                 subtitle:
                     item?.quantity != null
                         ? Text(
@@ -108,14 +195,9 @@ class _AddShopingItemState extends State<AddShopingItem>
                         : null,
                 trailing: openPopUpMenu(item),
                 leading: Checkbox(
-                  value: item?.status == 1,
+                  value: isChecked,
                   onChanged: (val) {
-                    databaseService.completeShopingListItem(
-                      item!,
-                      val == true ? 1 : 0,
-                    );
-                    loadListItem();
-                    setState(() {});
+                    shopingListController.updateItemState(item, val);
                   },
                 ),
               );
@@ -126,33 +208,34 @@ class _AddShopingItemState extends State<AddShopingItem>
     });
   }
 
-  Widget openPopUpMenu(ShoppingListItemModel? item) {
+  Widget openPopUpMenu(ShopListItems? item) {
     return PopupMenuButton<String>(
       onSelected: (val) {
         if (val == "edit") {
           if (item != null) {
+            shopingListController.selecteListItemStateID(
+              null,
+              item.shopListItemsId,
+            );
             Helper().goToPage(
               context: context,
-              child: AddItemsScreen(
-                shopListId: widget.shopingList.id ?? 0,
-                shopListItem: item,
-              ),
+              child: AddItemsScreen(shopListItem: item),
             );
           } else {
             Helper().goToPage(
               context: context,
-              child: Createshopinglist(updateItem: widget.shopingList),
+              child: Createshopinglist(updateItem: widget.shoppingListModel),
             );
           }
         }
         if (val == "delete") {
           if (item != null) {
-            databaseService.deleteItem(item.id ?? 0);
-            loadListItem();
+            shopingListController.deleteShopListItem(
+              item.shopListItemsId,
+              item.id,
+            );
           } else {
-            databaseService.deleteShopList(widget.shopingList.id ?? 0);
-            loadListItem();
-            Navigator.of(context).pop();
+            shopingListController.deleteShopList();
           }
           setState(() {});
           return;
@@ -184,15 +267,13 @@ class _AddShopingItemState extends State<AddShopingItem>
       appBar: AppBar(
         title: Text('Add Shopping Item'),
         actions: [
-          IconButton(
-            onPressed: () {
-              Helper().goToPage(
-                context: context,
-                child: AddItemsScreen(shopListId: widget.shopingList.id ?? 0),
-              );
-            },
-            icon: Icon(Icons.add),
-          ),
+          //TODO: Keeping this spmiple
+          // IconButton(
+          //   onPressed: () {
+          //     Helper().goToPage(context: context, child: AddItemsScreen());
+          //   },
+          //   icon: Icon(Icons.add),
+          // ),
           openPopUpMenu(null),
         ],
         bottom: TabBar(
@@ -213,12 +294,12 @@ class _AddShopingItemState extends State<AddShopingItem>
       ),
       bottomNavigationBar: SafeArea(
         child: ListTile(
-          title: Text(widget.shopingList.title ?? ""),
+          title: Text("Shared with"),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.card_travel),
-              // Padding(padding: EdgeInsets.only(left: 6), child: Text("209/-")),
+              CircleAvatar(child: Text("GP")),
+              CircleAvatar(child: Text("GP")),
             ],
           ),
         ),

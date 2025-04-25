@@ -1,5 +1,6 @@
 import 'package:local_app/DataBase/config.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
+import 'package:local_app/modal/all_shop_list_items.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -30,7 +31,7 @@ class DatabaseService {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           $shoppingListTitle TEXT NOT NULL,
           $shoppingListDescription TEXT NOT NULL,
-          $shoppingListStatus INTEGER NOT NULL DEFAULT 0
+          $shoppingListStatus TEXT NOT NULL
         );
         """);
         await db.execute("""
@@ -38,7 +39,7 @@ class DatabaseService {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           $itemColumnName TEXT NOT NULL,
           $itemColumnQuantity INTEGER NOT NULL,
-          $itemColumnStatus INTEGER NOT NULL,
+          $itemColumnStatus TEXT NOT NULL,
           $shoppingListTable INTEGER NOT NULL DEFAULT 0,
           $itemColumnPrice INTEGER NOT NULL DEFAULT 0
         );
@@ -49,29 +50,29 @@ class DatabaseService {
   }
 
   //* Add items to the Shoping list table
-  Future<void> addItemToShopingList(ShoppingListItemModel item) async {
+  Future<void> addItemToShopingList(ShopListItems item) async {
     final db = await database;
     await db.insert(shoppingListItemTable, {
       shoppingListTable: item.id,
-      itemColumnName: item.name,
+      itemColumnName: item.itemName,
       itemColumnQuantity: item.quantity,
-      itemColumnStatus: item.status,
+      itemColumnStatus: item.state,
       itemColumnPrice: item.price,
     });
   }
 
   //* Create Shoping list
-  void createShopingList(ShoppingListModel item) async {
+  void createShopingList(MainShopListItem item) async {
     final db = await database;
     await db.insert(shoppingListTable, {
-      shoppingListTitle: item.title,
+      shoppingListTitle: item.shopListName,
       shoppingListDescription: item.description,
       shoppingListStatus: 1,
     });
   }
 
   //* Make Shoping list "item" checked
-  void completeShopingListItem(ShoppingListItemModel item, int state) async {
+  void completeShopingListItem(ShopListItems item, String state) async {
     final db = await database;
     await db.update(
       shoppingListItemTable,
@@ -82,7 +83,7 @@ class DatabaseService {
   }
 
   //* Get all the Shoping list items
-  Future<List<ShoppingListItemModel>?> getShopingListItem(
+  Future<List<ShopListItems>?> getShopingListItem(
     int id,
     bool? isCompleted,
   ) async {
@@ -94,30 +95,37 @@ class DatabaseService {
         where: '$shoppingListTable = ?',
         whereArgs: [id],
       );
-      List<ShoppingListItemModel> tasks =
-          myTaskData.map((e) => ShoppingListItemModel.fromMap(e)).toList();
+      List<ShopListItems> tasks =
+          myTaskData.map((e) => ShopListItems.fromMap(e)).toList();
 
       return tasks;
     }
-
-    if (isCompleted) {
-      final List<Map<String, dynamic>> myTaskData = await db.query(
-        shoppingListItemTable,
-        where: '$shoppingListTable = ? AND $itemColumnStatus = 1',
-        whereArgs: [id],
-      );
-      List<ShoppingListItemModel> tasks =
-          myTaskData.map((e) => ShoppingListItemModel.fromMap(e)).toList();
-
-      return tasks;
-    }
+    final String status = isCompleted ? 'completed' : 'not-completed';
     final List<Map<String, dynamic>> myTaskData = await db.query(
       shoppingListItemTable,
-      where: '$shoppingListTable = ? AND $itemColumnStatus = 0',
-      whereArgs: [id],
+      where: '$shoppingListTable = ? AND $itemColumnStatus = ?',
+      whereArgs: [id, status],
     );
-    List<ShoppingListItemModel> tasks =
-        myTaskData.map((e) => ShoppingListItemModel.fromMap(e)).toList();
+    List<ShopListItems> tasks =
+        myTaskData.map((e) => ShopListItems.fromMap(e)).toList();
+    // if (isCompleted) {
+    //   final List<Map<String, dynamic>> myTaskData = await db.query(
+    //     shoppingListItemTable,
+    //     where: '$shoppingListTable = ? AND $itemColumnStatus = completed',
+    //     whereArgs: [id],
+    //   );
+    //   List<ShopListItems> tasks =
+    //       myTaskData.map((e) => ShopListItems.fromMap(e)).toList();
+
+    //   return tasks;
+    // }
+    // final List<Map<String, dynamic>> myTaskData = await db.query(
+    //   shoppingListItemTable,
+    //   where: '$shoppingListTable = ? AND $itemColumnStatus = not-completed',
+    //   whereArgs: [id],
+    // );
+    // List<ShopListItems> tasks =
+    //     myTaskData.map((e) => ShopListItems.fromMap(e)).toList();
 
     return tasks;
   }
@@ -129,32 +137,32 @@ class DatabaseService {
   }
 
   //* Update Shoping list item
-  Future<void> updateItem(ShoppingListItemModel item) async {
+  Future<void> updateItem(ShopListItems? item) async {
     final db = await database;
     await db.update(
       shoppingListItemTable,
       {
-        itemColumnName: item.name,
-        itemColumnQuantity: item.quantity,
-        itemColumnStatus: item.status,
-        itemColumnPrice: item.price,
+        itemColumnName: item?.itemName,
+        itemColumnQuantity: item?.quantity,
+        itemColumnStatus: item?.state,
+        itemColumnPrice: item?.price,
       },
       where: 'id =?',
-      whereArgs: [item.id],
+      whereArgs: [item?.id],
     );
   }
 
   //* Update Shoping list Name and information
-  Future<void> updateShoplist(ShoppingListModel item) async {
+  Future<void> updateShoplist(MainShopListItem item, int shopListId) async {
     final db = await database;
     await db.update(
       shoppingListTable,
       {
-        shoppingListTitle: item.title,
+        shoppingListTitle: item.shopListName,
         shoppingListDescription: item.description,
       },
       where: 'id =?',
-      whereArgs: [item.id],
+      whereArgs: [shopListId],
     );
   }
 
@@ -170,7 +178,7 @@ class DatabaseService {
   }
 
   //* Get all the Shoping lists
-  Future<List<ShoppingListModel>?> getShopingList(bool isCompleted) async {
+  Future<List<MainShopListItem>?> getShopingList(bool isCompleted) async {
     final db = await database;
     final List<Map<String, dynamic>> myShopList = await db.query(
       shoppingListTable,
@@ -180,27 +188,29 @@ class DatabaseService {
       return [];
     }
 
-    List<ShoppingListModel> dbShopList = [];
+    List<MainShopListItem> dbShopList = [];
 
     for (var e in myShopList) {
       var allShopListItem = await getShopingListItem(e['id'], null);
       if (allShopListItem == null || allShopListItem.isEmpty) {
-        dbShopList.add(ShoppingListModel.fromMap(e, false, true));
+        dbShopList.add(MainShopListItem.fromMap(e, false, true));
         continue;
       }
 
-      if (allShopListItem.every((item) => item.status == 1)) {
-        dbShopList.add(ShoppingListModel.fromMap(e, true, false));
+      if (allShopListItem.every(
+        (item) => item.state == 'completed' ? true : false,
+      )) {
+        dbShopList.add(MainShopListItem.fromMap(e, true, false));
       } else {
-        dbShopList.add(ShoppingListModel.fromMap(e, false, false));
+        dbShopList.add(MainShopListItem.fromMap(e, false, false));
       }
     }
 
-    List<ShoppingListModel> filteredList = [];
+    List<MainShopListItem> filteredList = [];
     if (isCompleted) {
-      filteredList = dbShopList.where((item) => item.isCompleted).toList();
+      filteredList = dbShopList.where((item) => item.isCompleted!).toList();
     } else {
-      filteredList = dbShopList.where((item) => !item.isCompleted).toList();
+      filteredList = dbShopList.where((item) => !item.isCompleted!).toList();
     }
     return filteredList;
   }

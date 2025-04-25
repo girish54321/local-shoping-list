@@ -3,6 +3,8 @@ import 'package:get/get_instance/src/get_instance.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:local_app/Networking/unti/AppConst.dart';
+import 'package:local_app/app/Auth/LoginScreen/loginScreen.dart';
 import 'package:local_app/app/homeScreen/MainHomeScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShopingListController.dart';
@@ -22,8 +24,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    GetInstance().put<ShopingListController>(ShopingListController());
     GetInstance().put<SettingController>(SettingController());
+    GetInstance().put<ShopingListController>(ShopingListController());
+    GetStorage box = GetStorage();
 
     return GetMaterialApp(
       darkTheme: ThemeData(brightness: Brightness.dark),
@@ -33,7 +36,7 @@ class _MyAppState extends State<MyApp> {
         GetPage(
           name: '/',
           page: () {
-            return MainHomeScreen();
+            return box.hasData(JWT_KEY) ? MainHomeScreen() : LoginScreen();
           },
         ),
       ],
