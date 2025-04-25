@@ -66,11 +66,9 @@ class SettingController extends GetxController {
     isDark.value = !isDark.value;
     if (isDark.value == true) {
       saveThemSetting(true);
-      // Get.changeTheme(_darkTheme);
       Get.changeThemeMode(ThemeMode.dark);
     } else if (isDark.value == false) {
       saveThemSetting(false);
-      // Get.changeTheme(_lightTheme);
       Get.changeThemeMode(ThemeMode.light);
     }
   }

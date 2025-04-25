@@ -92,7 +92,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
 
   @override
   void initState() {
-    // globalController.loadEverything();
+    globalController.loadEverything();
     super.initState();
   }
 

@@ -288,16 +288,7 @@ class _AddShopingItemState extends State<AddShopingItem>
       return Scaffold(
         appBar: AppBar(
           title: Text('Add Shopping Item'),
-          actions: [
-            //TODO: Keeping this spmiple
-            // IconButton(
-            //   onPressed: () {
-            //     Helper().goToPage(context: context, child: AddItemsScreen());
-            //   },
-            //   icon: Icon(Icons.add),
-            // ),
-            openPopUpMenu(null),
-          ],
+          actions: [openPopUpMenu(null)],
           bottom: TabBar(
             controller: _tabController,
             onTap: (index) {

@@ -94,8 +94,6 @@ class _SavedItemsListState extends State<SavedItemsList> {
                   itemCount: items.data?.length,
                   itemBuilder: (context, index) {
                     var listItem = items.data?[index];
-                    print("In List");
-                    print(listItem?.itemName ?? "");
                     return SaveItemInputs(
                       item: listItem,
                       reloadList: getAllItems,

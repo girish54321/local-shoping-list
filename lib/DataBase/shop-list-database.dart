@@ -109,25 +109,6 @@ class DatabaseService {
     );
     List<ShopListItems> tasks =
         myTaskData.map((e) => ShopListItems.fromMap(e)).toList();
-    // if (isCompleted) {
-    //   final List<Map<String, dynamic>> myTaskData = await db.query(
-    //     shoppingListItemTable,
-    //     where: '$shoppingListTable = ? AND $itemColumnStatus = completed',
-    //     whereArgs: [id],
-    //   );
-    //   List<ShopListItems> tasks =
-    //       myTaskData.map((e) => ShopListItems.fromMap(e)).toList();
-
-    //   return tasks;
-    // }
-    // final List<Map<String, dynamic>> myTaskData = await db.query(
-    //   shoppingListItemTable,
-    //   where: '$shoppingListTable = ? AND $itemColumnStatus = not-completed',
-    //   whereArgs: [id],
-    // );
-    // List<ShopListItems> tasks =
-    //     myTaskData.map((e) => ShopListItems.fromMap(e)).toList();
-
     return tasks;
   }
 

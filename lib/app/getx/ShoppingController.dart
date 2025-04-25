@@ -224,7 +224,7 @@ class ShoppingController extends GetxController {
   }
 
   Future<void> addNewSavedItem(AddCommonItems item) async {
-    var result = await apiResponse.addCommonItems(item.toJson());
+    apiResponse.addCommonItems(item.toJson());
   }
 
   Future<void> updateItemState(ShopListItems? value, bool? state) async {
@@ -384,8 +384,7 @@ class ShoppingController extends GetxController {
 
   Future<void> shareShopList(String? userId) async {
     if (settingController.offlineMode.value) {
-      //* Save shared user list to local database
-      // _databaseService.saveSharedUserList(sharedUserList.value);
+      //* Share list not supported in offline mode
       return;
     }
     var result = await apiResponse.shareShopList({
@@ -408,7 +407,6 @@ class ShoppingController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    loadEverything();
   }
 
   @override
