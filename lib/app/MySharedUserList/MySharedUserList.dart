@@ -4,6 +4,7 @@ import 'package:local_app/Helper/PullToLoadList.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Helper/no_dat_view.dart';
 import 'package:local_app/app/AddShopingItem/AddShopingItemScreen.dart';
+import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
@@ -52,15 +53,18 @@ class _ShareUserListScreenState extends State<MyShareUserListScreen> {
                     var item = list[index]!;
                     return ListTile(
                       onTap: () {
-                        if (settingController.offlineMode.value) {
+                        if (settingController.appNetworkState.value ==
+                            AppNetworkState.offline) {
                           shopingListController.selecteShopListID(
                             item.id,
+                            null,
                             null,
                           );
                         } else {
                           shopingListController.selecteShopListID(
                             null,
                             item.shopListId ?? "",
+                            null,
                           );
                         }
                         Helper().goToPage(

@@ -7,6 +7,7 @@ import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/MySharedUserList/MySharedUserList.dart';
 import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 import 'package:local_app/app/ShopingList/ShopingList.dart';
+import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShoppingController.dart';
 
 class MainHomeScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class MainHomeScreen extends StatefulWidget {
 
 class _MainHomeScreenState extends State<MainHomeScreen> {
   final ShoppingController globalController = Get.find();
+  final SettingController settingController = Get.find();
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -34,6 +36,14 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
     if (_selectedIndex == 0) {
       return Obx(() {
         final state = globalController.inprogressShopingList.value;
+        final appNetworkState = settingController.appNetworkState.value;
+
+        if (appNetworkState == AppNetworkState.superbase) {
+          return ShopingList(
+            isCompleted: false,
+            shoppingList: globalController.inprogressShopingList.value.data,
+          );
+        }
 
         if (state.status == LoadingStatus.loading) {
           return LoadingListView();
@@ -59,6 +69,15 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
       // return Obx(
       return Obx(() {
         final state = globalController.completedShopingList.value;
+
+        final appNetworkState = settingController.appNetworkState.value;
+
+        if (appNetworkState == AppNetworkState.superbase) {
+          return ShopingList(
+            isCompleted: false,
+            shoppingList: globalController.inprogressShopingList.value.data,
+          );
+        }
 
         if (state.status == LoadingStatus.loading) {
           return LoadingListView();

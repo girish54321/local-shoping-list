@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
+import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/modal/addCommonItems.dart';
@@ -30,7 +31,9 @@ class _AutoCompletState extends State<AutoComplet> {
   final ShoppingController shopingListController = Get.find();
 
   Future<void> getAllItems() async {
-    if (settingController.offlineMode.value) {
+    AppNetworkState appNetworkState = settingController.appNetworkState.value;
+    if (appNetworkState == AppNetworkState.offline ||
+        appNetworkState == AppNetworkState.superbase) {
       return;
     }
     var result = await apiResponse.getCommonItems();
@@ -53,7 +56,8 @@ class _AutoCompletState extends State<AutoComplet> {
     );
 
     itemName?.text = "";
-    if (settingController.offlineMode.value) {
+    AppNetworkState appNetworkState = settingController.appNetworkState.value;
+    if (appNetworkState == AppNetworkState.offline) {
       itemName?.text = "";
       FocusScope.of(context).unfocus();
       widget.onItemTap(newItem);

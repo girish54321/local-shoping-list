@@ -6,6 +6,7 @@ import 'package:local_app/Helper/loadingListView.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/SavedItemsList/SaveItemInputs.dart';
+import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/modal/common_items.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
@@ -30,7 +31,7 @@ class _SavedItemsListState extends State<SavedItemsList> {
   );
 
   Future<void> getAllItems() async {
-    if (settingController.offlineMode.value) {
+    if (settingController.appNetworkState.value == AppNetworkState.offline) {
       return;
     }
     setState(() {

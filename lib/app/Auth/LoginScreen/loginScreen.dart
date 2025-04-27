@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/AuthDataSource/AuthDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/Auth/LoginScreen/loginScreenUI.dart';
 import 'package:local_app/app/Auth/SignUpScreen/SignUpScreen.dart';
+import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/app/homeScreen/MainHomeScreen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
@@ -26,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final ShoppingController shoppingController = Get.find();
   final SettingController settingController = Get.find();
 
+  final supabase = Supabase.instance.client;
   bool validEmail = false, validPassword = false, rememberMe = true;
 
   void goBack(context) {
@@ -54,6 +58,22 @@ class _LoginScreenState extends State<LoginScreen> {
     GetStorage box = GetStorage();
     if (_formKey.currentState!.validate()) {
       Helper().dismissKeyBoard(context);
+
+      if (settingController.appNetworkState.value ==
+          AppNetworkState.superbase) {
+        try {
+          final AuthResponse res = await supabase.auth.signInWithPassword(
+            email: emailController.text,
+            password: passwordController.text,
+          );
+          final Session? session = res.session;
+          final User? user = res.user;
+          print(res);
+        } catch (e) {
+          print("Error with Login: $e");
+        }
+      } else {}
+    } else {
       AuthDataSource apiResponse = AuthDataSource();
       var parameter = {
         "email": emailController.text,
@@ -65,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
         box.write('token', result.data?.accessToken);
         Get.off(MainHomeScreen());
       }
-    } else {}
+    }
   }
 
   void skipLogin() {

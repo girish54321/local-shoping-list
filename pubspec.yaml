@@ -24,7 +24,7 @@ dependencies:
   dynamic_color: ^1.7.0
   animated_icon: ^0.0.9
   progress_indicators: ^1.0.0
-
+  supabase_flutter: ^2.8.4
 
 
 dev_dependencies:
