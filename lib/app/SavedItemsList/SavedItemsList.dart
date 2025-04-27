@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Helper/loadingListView.dart';
@@ -10,6 +11,7 @@ import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/modal/common_items.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SavedItemsList extends StatefulWidget {
   const SavedItemsList({super.key});
@@ -25,13 +27,31 @@ class _SavedItemsListState extends State<SavedItemsList> {
   TextEditingController? itemName = TextEditingController();
 
   final SettingController settingController = Get.find();
+  final SupabaseClient supabase = DatabaseService.supabase;
 
   RefreshController refreshController = RefreshController(
     initialRefresh: false,
   );
 
+  bool isLoading = false;
+
   Future<void> getAllItems() async {
-    if (settingController.appNetworkState.value == AppNetworkState.offline) {
+    AppNetworkState appNetworkState = settingController.appNetworkState.value;
+    if (appNetworkState == AppNetworkState.offline ||
+        appNetworkState == AppNetworkState.superbase) {
+      supabase
+          .from('common_items')
+          .stream(primaryKey: ['commonItemsId'])
+          .listen((List<Map<String, dynamic>> data) {
+            setState(() {
+              isLoading = true;
+            });
+            Future.delayed(const Duration(seconds: 2), () {
+              setState(() {
+                isLoading = false;
+              });
+            });
+          });
       return;
     }
     setState(() {
@@ -82,27 +102,59 @@ class _SavedItemsListState extends State<SavedItemsList> {
         onPressed: goToAddNewSavedItem,
         child: Icon(Icons.add),
       ),
-      body: PullToLoadList(
-        refreshController: refreshController,
-        onRefresh: () {
-          getAllItems();
-        },
-        child:
-            items.status == LoadingStatus.loading
-                ? LoadingListView()
-                : ListView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  itemCount: items.data?.length,
-                  itemBuilder: (context, index) {
-                    var listItem = items.data?[index];
-                    return SaveItemInputs(
-                      item: listItem,
-                      reloadList: getAllItems,
-                    );
-                  },
-                ),
-        onLoading: () {},
-      ),
+      body:
+          isLoading
+              ? LoadingListView()
+              : settingController.appNetworkState.value ==
+                  AppNetworkState.superbase
+              ? StreamBuilder(
+                stream: supabase
+                    .from('common_items')
+                    .stream(primaryKey: ['commonItemsId']),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return LoadingListView();
+                  }
+                  List<CommonItemsItems?>? items =
+                      snapshot.data
+                          ?.map((e) => CommonItemsItems.fromJson(e))
+                          .toList();
+                  return ListView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    itemCount: items?.length,
+                    itemBuilder: (context, index) {
+                      var listItem = items?[index];
+                      return SaveItemInputs(
+                        key: Key(listItem?.commonItemsId ?? ""),
+                        item: listItem,
+                        reloadList: getAllItems,
+                      );
+                    },
+                  );
+                },
+              )
+              : PullToLoadList(
+                refreshController: refreshController,
+                onRefresh: () {
+                  getAllItems();
+                },
+                child:
+                    items.status == LoadingStatus.loading
+                        ? LoadingListView()
+                        : ListView.builder(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          itemCount: items.data?.length,
+                          itemBuilder: (context, index) {
+                            var listItem = items.data?[index];
+                            return SaveItemInputs(
+                              key: Key(listItem?.commonItemsId ?? ""),
+                              item: listItem,
+                              reloadList: getAllItems,
+                            );
+                          },
+                        ),
+                onLoading: () {},
+              ),
     );
   }
 }

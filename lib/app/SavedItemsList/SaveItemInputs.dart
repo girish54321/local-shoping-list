@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
+import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
+import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/modal/addCommonItems.dart';
 import 'package:local_app/modal/common_items.dart';
 import 'package:rules/rules.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SaveItemInputs extends StatefulWidget {
   final CommonItemsItems? item;
@@ -29,11 +33,13 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
   final _formKey = GlobalKey<FormState>();
 
   final ShoppingController shopingListController = Get.find();
+  final SettingController settingController = Get.find();
 
   TextEditingController nameTextEditingController = TextEditingController();
   TextEditingController quantityTextEditingController = TextEditingController();
   TextEditingController priceTextEditingController = TextEditingController();
   ShopListDataSource apiResponse = ShopListDataSource();
+  final SupabaseClient supabase = DatabaseService.supabase;
 
   @override
   void initState() {
@@ -96,12 +102,30 @@ class _SaveItemInputsState extends State<SaveItemInputs> {
         return;
       }
 
+      var updateObj = {
+        "itemName": nameTextEditingController.text,
+        "description": nameTextEditingController.text,
+        "quantity": quantityTextEditingController.text,
+        "price": priceTextEditingController.text,
+        "commonItemsId": widget.item?.commonItemsId ?? "",
+      };
+
+      if (settingController.appNetworkState.value ==
+          AppNetworkState.superbase) {
+        await supabase
+            .from('common_items')
+            .update(updateObj)
+            .eq("commonItemsId", widget.item?.commonItemsId ?? "");
+        return;
+      }
+
       var result = await apiResponse.updateCommonItems({
         "itemId": widget.item?.commonItemsId ?? "",
         "itemName": nameTextEditingController.text,
         "description": nameTextEditingController.text,
         "quantity": quantityTextEditingController.text,
         "price": priceTextEditingController.text,
+        "commonItemsId": widget.item?.commonItemsId ?? "",
       });
       if (result.status == LoadingStatus.success) {
         if (result.data?.success == true) {

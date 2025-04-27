@@ -286,6 +286,9 @@ class ShoppingController extends GetxController {
   Future<void> addNewSavedItem(AddCommonItems item) async {
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
     if (appNetworkState == AppNetworkState.superbase) {
+      final Session? session = supabase.auth.currentSession;
+      item.user_id = session?.user.id;
+      await supabase.from('common_items').insert(item.toJson());
       return;
     }
     apiResponse.addCommonItems(item.toJson());
@@ -419,6 +422,16 @@ class ShoppingController extends GetxController {
 
   Future<void> updateShopList(MainShopListItem item) async {
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
+    if (appNetworkState == AppNetworkState.superbase) {
+      item.superBaseId = selectedState.value.superBaseShopListID ?? "";
+      item.shopListId = null;
+      await supabase
+          .from('shop_list')
+          .update(item.toJson())
+          .eq("id", selectedState.value.superBaseShopListID ?? "");
+      Helper().goBack();
+      return;
+    }
     if (appNetworkState == AppNetworkState.offline) {
       _databaseService.updateShoplist(
         item,
@@ -485,6 +498,9 @@ class ShoppingController extends GetxController {
   }
 
   void loadEverything() {
+    if (settingController.appNetworkState == AppNetworkState.superbase) {
+      return;
+    }
     Future.delayed(const Duration(seconds: 2), () {
       loadCompletedShopingList();
       loadInProgressShopingList();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
@@ -8,6 +9,7 @@ import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/modal/addCommonItems.dart';
 import 'package:local_app/modal/common_items.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AutoComplet extends StatefulWidget {
   final bool isOwner;
@@ -30,12 +32,23 @@ class _AutoCompletState extends State<AutoComplet> {
   final SettingController settingController = Get.find();
   final ShoppingController shopingListController = Get.find();
 
+  final SupabaseClient supabase = DatabaseService.supabase;
+
   Future<void> getAllItems() async {
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
     if (appNetworkState == AppNetworkState.offline ||
         appNetworkState == AppNetworkState.superbase) {
+      supabase
+          .from('common_items')
+          .stream(primaryKey: ['commonItemsId'])
+          .listen((List<Map<String, dynamic>> data) {
+            setState(() {
+              items = data.map((e) => CommonItemsItems.fromJson(e)).toList();
+            });
+          });
       return;
     }
+
     var result = await apiResponse.getCommonItems();
     if (result.status == LoadingStatus.success) {
       setState(() {

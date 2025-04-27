@@ -62,13 +62,11 @@ class _LoginScreenState extends State<LoginScreen> {
       if (settingController.appNetworkState.value ==
           AppNetworkState.superbase) {
         try {
-          final AuthResponse res = await supabase.auth.signInWithPassword(
+          await supabase.auth.signInWithPassword(
             email: emailController.text,
             password: passwordController.text,
           );
-          final Session? session = res.session;
-          final User? user = res.user;
-          print(res);
+          Get.off(MainHomeScreen());
         } catch (e) {
           print("Error with Login: $e");
         }

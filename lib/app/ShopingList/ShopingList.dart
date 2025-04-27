@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/instance_manager.dart';
 import 'package:local_app/DataBase/shop-list-database.dart';
+import 'package:local_app/Helper/loadingListView.dart';
 import 'package:local_app/Helper/no_dat_view.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
 import 'package:local_app/Helper/helper.dart';
@@ -65,9 +66,13 @@ class _ShopingListState extends State<ShopingList> {
     return StreamBuilder(
       stream: supabase.from('shop_list').stream(primaryKey: ['id']),
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return LoadingListView();
+        }
         ShopListModal shopListModal = ShopListModal.fromJson({
           'shopList': snapshot.data,
         });
+
         return ListView.builder(
           itemCount: shopListModal.shopList?.length,
           itemBuilder: (context, index) {

@@ -73,7 +73,6 @@ class _MyAppState extends State<MyApp> {
                       stream: supabaseClient.auth.onAuthStateChange,
                       builder: (context, snapshot) {
                         final authData = snapshot.data;
-
                         if (authData == null) {
                           return LoginScreen();
                         } else {

@@ -296,13 +296,58 @@ class _AddShopingItemState extends State<AddShopingItem>
     );
   }
 
+  Widget superBaseList() {
+    return StreamBuilder(
+      stream: supabase
+          .from('shop_list_item')
+          .stream(primaryKey: ['shopListItemsId'])
+          .eq(
+            'shopListId',
+            shopingListController.selectedState.value.superBaseShopListID!,
+          ),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return LoadingListView();
+        }
+
+        final List<dynamic> data = snapshot.data!;
+        return ListView.builder(
+          itemCount: data.length + 1,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return AutoComplet(
+                isOwner: true,
+                onItemTap: (item) {
+                  _addShopingItem(item);
+                },
+              );
+            }
+            final itemData = data[index - 1];
+            ShopListItems item = ShopListItems.fromJson(itemData);
+            bool isChecked = item.state == 'completed';
+
+            return AddShopingItemUI(
+              key: ValueKey(item.id?.toString()),
+              isChecked: isChecked,
+              isOwner: true,
+              onChanged: (val) {},
+              item: item,
+              trailing: openPopUpMenu(item),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       var isOwner = shopingListController.isOwner.value;
       var offline =
           settingController.appNetworkState.value == AppNetworkState.offline;
-
+      var isSuperbase =
+          settingController.appNetworkState.value == AppNetworkState.superbase;
       var allowAction =
           offline
               ? true
@@ -313,72 +358,31 @@ class _AddShopingItemState extends State<AddShopingItem>
         appBar: AppBar(
           title: Text('Add Shopping Item'),
           actions: [openPopUpMenu(null)],
-          bottom: TabBar(
-            controller: _tabController,
-            onTap: (index) {
-              if (index == 1) {}
-            },
-            tabs: const <Widget>[
-              Tab(icon: Icon(Icons.check)),
-              Tab(icon: Icon(Icons.check_circle_outline)),
-            ],
-          ),
+          bottom:
+              isSuperbase
+                  ? null
+                  : TabBar(
+                    controller: _tabController,
+                    onTap: (index) {
+                      if (index == 1) {}
+                    },
+                    tabs: const <Widget>[
+                      Tab(icon: Icon(Icons.check)),
+                      Tab(icon: Icon(Icons.check_circle_outline)),
+                    ],
+                  ),
         ),
         // body: listOfItem(),
-        body: TabBarView(
-          controller: _tabController,
-          children: <Widget>[
-            StreamBuilder(
-              stream: supabase
-                  .from('shop_list_item')
-                  .stream(primaryKey: ['id'])
-                  .eq(
-                    'shopListId',
-                    shopingListController
-                        .selectedState
-                        .value
-                        .superBaseShopListID!,
-                  ),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return CircularProgressIndicator();
-                }
-
-                final List<dynamic> data = snapshot.data!;
-
-                return ListView.builder(
-                  itemCount: data.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return AutoComplet(
-                        isOwner: true,
-                        onItemTap: (item) {
-                          _addShopingItem(item);
-                        },
-                      );
-                    }
-                    final itemData = data[index - 1];
-                    ShopListItems item = ShopListItems.fromJson(itemData);
-                    bool isChecked = item.state == 'completed';
-                    // print("shopListItemsId");
-                    // print(item.shopListItemsId);
-                    return AddShopingItemUI(
-                      key: ValueKey(item.id?.toString()),
-                      isChecked: isChecked,
-                      isOwner: true,
-                      onChanged: (val) {
-                        setState(() {});
-                      },
-                      item: item,
-                      trailing: openPopUpMenu(item),
-                    );
-                  },
-                );
-              },
-            ),
-            listOfItem(true, allowAction),
-          ],
-        ),
+        body:
+            isSuperbase
+                ? superBaseList()
+                : TabBarView(
+                  controller: _tabController,
+                  children: [
+                    listOfItem(false, allowAction),
+                    listOfItem(true, allowAction),
+                  ],
+                ),
         bottomNavigationBar: SafeArea(
           child: ListTile(
             title: Text("Shared with others"),
