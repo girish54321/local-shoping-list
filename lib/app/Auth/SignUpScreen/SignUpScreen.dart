@@ -5,8 +5,12 @@ import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/AuthDataSource/AuthDataSource.dart';
 import 'package:local_app/Networking/modal/userLoginModal.dart';
 import 'package:local_app/Networking/unti/result.dart';
+import 'package:local_app/app/Auth/LoginScreen/loginScreen.dart';
 import 'package:local_app/app/Auth/SignUpScreen/SignUpScreenUI.dart';
+import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
+import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/homeScreen/MainHomeScreen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUpScreen extends StatefulWidget {
   SignUpScreen({Key? key}) : super(key: key);
@@ -22,6 +26,9 @@ class _LoginScreenState extends State<SignUpScreen> {
   final passwordController = TextEditingController();
   final firstNameController = TextEditingController();
   final lastNameNameController = TextEditingController();
+  final SettingController settingController = Get.find();
+
+  final supabase = Supabase.instance.client;
 
   bool validEmail = false, validPassword = false, rememberMe = true;
 
@@ -60,6 +67,16 @@ class _LoginScreenState extends State<SignUpScreen> {
         "firstName": firstNameController.text,
         "lastName": lastNameNameController.text,
       };
+
+      if (settingController.appNetworkState.value ==
+          AppNetworkState.superbase) {
+        final AuthResponse res = await supabase.auth.signUp(
+          email: emailController.text,
+          password: passwordController.text,
+        );
+        Get.off(LoginScreen());
+        return;
+      }
 
       var result = await apiResponse.signUpUser(parameter);
       if (result.status == LoadingStatus.success) {

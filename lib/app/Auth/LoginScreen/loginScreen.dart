@@ -68,6 +68,8 @@ class _LoginScreenState extends State<LoginScreen> {
           );
           Get.off(MainHomeScreen());
         } catch (e) {
+          AuthException authException = e as AuthException;
+          DialogHelper.showErrorDialog(description: authException.message);
           print("Error with Login: $e");
         }
       } else {}

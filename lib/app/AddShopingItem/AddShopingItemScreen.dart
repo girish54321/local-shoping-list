@@ -247,6 +247,7 @@ class _AddShopingItemState extends State<AddShopingItem>
         if (val == "delete") {
           if (item != null) {
             if (appNetworkState == AppNetworkState.superbase) {
+              print("Code state here");
               shopingListController.deleteShopListItem(
                 null,
                 null,
@@ -260,6 +261,7 @@ class _AddShopingItemState extends State<AddShopingItem>
               );
             }
           } else {
+            print("Shop list delete");
             shopingListController.deleteShopList();
           }
           setState(() {});

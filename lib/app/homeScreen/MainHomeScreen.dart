@@ -69,14 +69,10 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
       // return Obx(
       return Obx(() {
         final state = globalController.completedShopingList.value;
-
         final appNetworkState = settingController.appNetworkState.value;
 
         if (appNetworkState == AppNetworkState.superbase) {
-          return ShopingList(
-            isCompleted: false,
-            shoppingList: globalController.inprogressShopingList.value.data,
-          );
+          return ErrorView(errorMessage: "Not available with Superbase Yet!");
         }
 
         if (state.status == LoadingStatus.loading) {

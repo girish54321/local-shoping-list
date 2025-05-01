@@ -5,6 +5,7 @@ import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart'
 import 'package:local_app/Networking/modal/main_shop_list.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
+import 'package:local_app/app/ShareUserListScreen/ShareUserListScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:local_app/modal/addCommonItems.dart';
@@ -379,10 +380,14 @@ class ShoppingController extends GetxController {
     String? superBaseShopListItemID,
   ) async {
     if (superBaseShopListItemID != null) {
-      await supabase
-          .from('shop_list_item')
-          .delete()
-          .eq("shopListItemsId", superBaseShopListItemID);
+      try {
+        await supabase
+            .from('shop_list_item')
+            .delete()
+            .eq("shopListItemsId", superBaseShopListItemID);
+      } catch (e) {
+        print(e);
+      }
       return;
     }
     //* Delete Local ShopListItem
@@ -401,8 +406,21 @@ class ShoppingController extends GetxController {
   }
 
   Future<void> deleteShopList() async {
-    //* Delete Local ShopListItem
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
+    if (appNetworkState == AppNetworkState.superbase) {
+      try {
+        await supabase
+            .from('shop_list')
+            .delete()
+            .eq("id", selectedState.value.superBaseShopListID ?? '');
+        Helper().goBack();
+      } catch (e) {
+        print("Delete shoplist error: $e");
+      }
+      return;
+    }
+
+    //* Delete Local ShopListItem
     if (appNetworkState == AppNetworkState.offline) {
       _databaseService.deleteShopList(selectedState.value.localShopListID ?? 1);
       loadCompletedShopingList();
@@ -459,6 +477,18 @@ class ShoppingController extends GetxController {
       // sharedUserList.refresh();
       return;
     }
+
+    if (appNetworkState == AppNetworkState.superbase) {
+      final data = await supabase
+          .from('user-shop-lists')
+          .select('id, email')
+          .eq('shopListId', selectedState.value.superBaseShopListID ?? "");
+      List<SharedUserList?> sharedUserListData =
+          data.map((item) => SharedUserList.fromJson(item)).toList();
+      sharedUserList.value = sharedUserListData;
+      sharedUserList.refresh();
+      return;
+    }
     var result = await apiResponse.getSharedUserList(
       selectedState.value.remoteShopListID,
     );
@@ -469,7 +499,12 @@ class ShoppingController extends GetxController {
     }
   }
 
-  Future<void> getMySharedList() async {
+  Future<void> getMySharedList(List<SharedUserList?>? shareList) async {
+    if (shareList != null) {
+      mySharedList.value = shareList;
+      return;
+    }
+
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
     if (appNetworkState == AppNetworkState.offline) {
       return;
@@ -482,15 +517,26 @@ class ShoppingController extends GetxController {
     }
   }
 
-  Future<void> shareShopList(String? userId) async {
+  Future<void> shareShopList(SelectedUser? selectedUser) async {
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
+    var saveObj = {
+      "userId": selectedUser?.id ?? "",
+      "email": selectedUser?.email ?? "",
+      "shopListId": selectedState.value.superBaseShopListID,
+    };
+    print(saveObj);
+    if (appNetworkState == AppNetworkState.superbase) {
+      await supabase.from('user-shop-lists').insert(saveObj);
+      return;
+    }
+
     if (appNetworkState == AppNetworkState.offline) {
       //* Share list not supported in offline mode
       return;
     }
     var result = await apiResponse.shareShopList({
       "shopListId": selectedState.value.remoteShopListID,
-      "sharedUserId": userId,
+      "sharedUserId": selectedUser?.id ?? "",
     });
     if (result.status == LoadingStatus.success) {
       getSharedUserList();
@@ -498,13 +544,13 @@ class ShoppingController extends GetxController {
   }
 
   void loadEverything() {
-    if (settingController.appNetworkState == AppNetworkState.superbase) {
+    if (settingController.appNetworkState.value == AppNetworkState.superbase) {
       return;
     }
     Future.delayed(const Duration(seconds: 2), () {
       loadCompletedShopingList();
       loadInProgressShopingList();
-      getMySharedList();
+      getMySharedList(null);
     });
   }
 }

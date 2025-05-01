@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/instance_manager.dart';
 import 'package:local_app/DataBase/shop-list-database.dart';
+import 'package:local_app/Helper/error_screen.dart';
 import 'package:local_app/Helper/loadingListView.dart';
 import 'package:local_app/Helper/no_dat_view.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
@@ -26,7 +27,6 @@ class ShopingList extends StatefulWidget {
 class _ShopingListState extends State<ShopingList> {
   final ShoppingController shopingListController = Get.find();
   final SettingController settingController = Get.find();
-
   //* Reload  List
   RefreshController refreshController = RefreshController(
     initialRefresh: false,
@@ -63,11 +63,19 @@ class _ShopingListState extends State<ShopingList> {
   }
 
   Widget superbaseList() {
+    final User? user = supabase.auth.currentUser;
+
     return StreamBuilder(
-      stream: supabase.from('shop_list').stream(primaryKey: ['id']),
+      stream: supabase
+          .from('shop_list')
+          .stream(primaryKey: ['id'])
+          .eq('user_id', user?.id ?? ''),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return LoadingListView();
+        }
+        if (snapshot.connectionState == ConnectionState.none) {
+          return ErrorView(errorMessage: "Someting wet worng");
         }
         ShopListModal shopListModal = ShopListModal.fromJson({
           'shopList': snapshot.data,

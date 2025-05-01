@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 class ErrorView extends StatefulWidget {
   final String? errorMessage;
-  final Function onRetry;
-  const ErrorView({super.key, this.errorMessage, required this.onRetry});
+  final Function()? onRetry;
+  const ErrorView({super.key, this.errorMessage, this.onRetry});
 
   @override
   State<ErrorView> createState() => _ErrorViewState();
@@ -27,12 +27,7 @@ class _ErrorViewState extends State<ErrorView> {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                widget.onRetry();
-              },
-              child: Text("Try Again"),
-            ),
+            ElevatedButton(onPressed: widget.onRetry, child: Text("Try Again")),
           ],
         ),
       ),

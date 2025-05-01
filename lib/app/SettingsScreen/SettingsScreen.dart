@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/unti/AppConst.dart';
 import 'package:local_app/app/Auth/LoginScreen/loginScreen.dart';
 import 'package:local_app/app/SavedItemsList/SavedItemsList.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShoppingController.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum AppNetworkState { offline, api, superbase }
 
@@ -23,8 +25,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   final ShoppingController shopingListController = GetInstance()
       .put<ShoppingController>(ShoppingController());
+
+  final SupabaseClient supabase = DatabaseService.supabase;
+
   GetStorage box = GetStorage();
-  void logout() {
+  Future<void> logout() async {
+    if (settingController.appNetworkState.value == AppNetworkState.superbase) {
+      await supabase.auth.signOut();
+    }
     box.remove(JWT_KEY);
     Get.offAll(LoginScreen());
   }

@@ -86,6 +86,7 @@ class SharedUserList {
   String? shopListId;
   String? createdAt;
   String? updatedAt;
+  String? email;
   AllShopListItemsSharedWithUser? user;
   //* New Obj
   MainShopListItem? shopListModal;
@@ -96,6 +97,7 @@ class SharedUserList {
     this.shopListId,
     this.createdAt,
     this.updatedAt,
+    this.email,
     this.user,
     this.shopListModal,
   });
@@ -103,6 +105,7 @@ class SharedUserList {
     id = json['id']?.toInt();
     userId = json['userId']?.toString();
     shopListId = json['shopListId']?.toString();
+    email = json['email']?.toString();
     createdAt = json['createdAt']?.toString();
     updatedAt = json['updatedAt']?.toString();
     user =
@@ -119,6 +122,7 @@ class SharedUserList {
     data['id'] = id;
     data['userId'] = userId;
     data['shopListId'] = shopListId;
+    data['email'] = email;
     data['createdAt'] = createdAt;
     data['updatedAt'] = updatedAt;
     if (user != null) {
