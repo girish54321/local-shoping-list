@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/AuthDataSource/AuthDataSource.dart';
-import 'package:local_app/Networking/modal/userLoginModal.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/Auth/LoginScreen/loginScreen.dart';
 import 'package:local_app/app/Auth/SignUpScreen/SignUpScreenUI.dart';

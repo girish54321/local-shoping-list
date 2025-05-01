@@ -1,3 +1,4 @@
+// ignore: file_names
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get_instance/get_instance.dart';
@@ -188,15 +189,19 @@ class _AddShopingItemState extends State<AddShopingItem>
         var offline =
             settingController.appNetworkState.value == AppNetworkState.offline;
 
+        var isSuperbase =
+            settingController.appNetworkState.value ==
+            AppNetworkState.superbase;
+
         var appNetworkState = settingController.appNetworkState.value;
 
-        // var allowAction =
-        //     offline
-        //         ? true
-        //         : isOwner
-        //         ? true
-        //         : false;
-        var allowAction = true;
+        var allowAction =
+            offline
+                ? true
+                : isOwner
+                ? true
+                : false;
+        // var allowAction = true;
 
         if (val == "clone" && !offline) {
           var completedList =
@@ -214,7 +219,7 @@ class _AddShopingItemState extends State<AddShopingItem>
           return;
         }
 
-        if (!allowAction) {
+        if (!allowAction || !isSuperbase) {
           return;
         }
 
@@ -247,7 +252,6 @@ class _AddShopingItemState extends State<AddShopingItem>
         if (val == "delete") {
           if (item != null) {
             if (appNetworkState == AppNetworkState.superbase) {
-              print("Code state here");
               shopingListController.deleteShopListItem(
                 null,
                 null,
@@ -261,7 +265,6 @@ class _AddShopingItemState extends State<AddShopingItem>
               );
             }
           } else {
-            print("Shop list delete");
             shopingListController.deleteShopList();
           }
           setState(() {});
