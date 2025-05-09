@@ -36,8 +36,10 @@ class _AutoCompletState extends State<AutoComplet> {
 
   Future<void> getAllItems() async {
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
-    if (appNetworkState == AppNetworkState.offline ||
-        appNetworkState == AppNetworkState.superbase) {
+    if (appNetworkState == AppNetworkState.offline) {
+      return;
+    }
+    if (appNetworkState == AppNetworkState.superbase) {
       supabase
           .from('common_items')
           .stream(primaryKey: ['commonItemsId'])

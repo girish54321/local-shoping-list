@@ -153,49 +153,36 @@ class LoginScreenUI extends StatelessWidget {
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0,
                                     ),
-                                    child: SizedBox(
-                                      width: double.infinity,
-                                      child: Expanded(
-                                        child: SegmentedButton<AppNetworkState>(
-                                          segments: const <
-                                            ButtonSegment<AppNetworkState>
-                                          >[
-                                            ButtonSegment<AppNetworkState>(
-                                              value: AppNetworkState.offline,
-                                              label: Text('Offline'),
-                                              icon: Icon(
-                                                Icons.calendar_view_day,
-                                              ),
-                                            ),
-                                            ButtonSegment<AppNetworkState>(
-                                              value: AppNetworkState.api,
-                                              label: Text('API'),
-                                              icon: Icon(
-                                                Icons.calendar_view_week,
-                                              ),
-                                            ),
-                                            ButtonSegment<AppNetworkState>(
-                                              value: AppNetworkState.superbase,
-                                              label: Text('Supabase'),
-                                              icon: Icon(
-                                                Icons.calendar_view_month,
-                                              ),
-                                            ),
-                                          ],
-                                          selected: <AppNetworkState>{
-                                            settingController
-                                                .appNetworkState
-                                                .value,
-                                          },
-                                          onSelectionChanged: (
-                                            Set<AppNetworkState> newSelection,
-                                          ) {
-                                            settingController.saveOfflineMode(
-                                              newSelection.first,
-                                            );
-                                          },
+                                    child: SegmentedButton<AppNetworkState>(
+                                      segments: const <
+                                        ButtonSegment<AppNetworkState>
+                                      >[
+                                        ButtonSegment<AppNetworkState>(
+                                          value: AppNetworkState.offline,
+                                          label: Text('Offline'),
+                                          icon: Icon(Icons.calendar_view_day),
                                         ),
-                                      ),
+                                        ButtonSegment<AppNetworkState>(
+                                          value: AppNetworkState.api,
+                                          label: Text('API'),
+                                          icon: Icon(Icons.calendar_view_week),
+                                        ),
+                                        ButtonSegment<AppNetworkState>(
+                                          value: AppNetworkState.superbase,
+                                          label: Text('Supabase'),
+                                          icon: Icon(Icons.calendar_view_month),
+                                        ),
+                                      ],
+                                      selected: <AppNetworkState>{
+                                        settingController.appNetworkState.value,
+                                      },
+                                      onSelectionChanged: (
+                                        Set<AppNetworkState> newSelection,
+                                      ) {
+                                        settingController.saveOfflineMode(
+                                          newSelection.first,
+                                        );
+                                      },
                                     ),
                                   ),
                                 ),

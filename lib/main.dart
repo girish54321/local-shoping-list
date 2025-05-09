@@ -34,7 +34,6 @@ class _MyAppState extends State<MyApp> {
     GetInstance().put<SettingController>(SettingController());
     GetInstance().put<ShoppingController>(ShoppingController());
     final SupabaseClient supabaseClient = DatabaseService.supabase;
-    // AppNetworkState appNetworkState = settingController.appNetworkState.value;
     GetStorage box = GetStorage();
 
     return DynamicColorBuilder(
