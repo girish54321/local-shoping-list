@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
-import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Helper/no_dat_view.dart';
-import 'package:local_app/app/AddShopingItem/AddShopingItemScreen.dart';
+import 'package:local_app/Helper/shopListItem.dart';
 import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShoppingController.dart';
@@ -89,32 +88,9 @@ class _ShareUserListScreenState extends State<MyShareUserListScreen> {
                   itemCount: list.length,
                   itemBuilder: (context, index) {
                     var item = list[index]!;
-                    return ListTile(
-                      onTap: () {
-                        if (settingController.appNetworkState.value ==
-                            AppNetworkState.offline) {
-                          shopingListController.selecteShopListID(
-                            item.id,
-                            null,
-                            null,
-                          );
-                        } else {
-                          shopingListController.selecteShopListID(
-                            null,
-                            item.shopListId ?? "",
-                            null,
-                          );
-                        }
-                        Helper().goToPage(
-                          context: context,
-                          child: AddShopingItem(
-                            shoppingListModel: item.shopListModal,
-                          ),
-                        );
-                      },
-                      leading: Icon(Icons.people_outline),
-                      title: Text(item.shopListModal?.shopListName ?? ""),
-                      subtitle: Text(item.shopListModal?.description ?? ""),
+                    return ShopListItemListTitle(
+                      isCompleted: false,
+                      shopListItem: item.shopListModal,
                     );
                   },
                 ),

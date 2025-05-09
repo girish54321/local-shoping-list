@@ -29,22 +29,28 @@ class ReqResClient {
       case RequestType.GET:
         var uri =
             _baseUrl + path + ((params != null) ? queryParameters(params) : "");
-        print("My request");
+        print("My GETrequest");
         print(uri);
         return _client.get(Uri.parse(uri), headers: headers);
       case RequestType.POST:
+        print("My POST request");
+        print("$_baseUrl/$path");
         return _client.post(
           Uri.parse("$_baseUrl/$path"),
           headers: headers,
           body: json.encode(parameter),
         );
       case RequestType.PUT:
+        print("My PUT request");
+        print("$_baseUrl/$path");
         return _client.put(
           Uri.parse("$_baseUrl/$path"),
           headers: headers,
           body: json.encode(parameter),
         );
       case RequestType.DELETE:
+        print("My DELETE request");
+        print("$_baseUrl/$path");
         return _client.delete(
           headers: headers,
           Uri.parse("$_baseUrl/$path"),

@@ -130,6 +130,9 @@ class ShoppingController extends GetxController {
   //* Load the completed shoping list
   Future<void> loadCompletedShopingList() async {
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
+    if (appNetworkState == AppNetworkState.superbase) {
+      return;
+    }
     completedShopingList.value = LoadingState.loading();
     if (appNetworkState == AppNetworkState.offline) {
       //* Load data from local database
@@ -151,6 +154,11 @@ class ShoppingController extends GetxController {
   //* Load the inprogress shoping list list
   Future<void> loadInProgressShopingList() async {
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
+
+    if (appNetworkState == AppNetworkState.superbase) {
+      return;
+    }
+
     inprogressShopingList.value = LoadingState.loading();
     if (appNetworkState == AppNetworkState.offline) {
       // Load data from local database
@@ -159,6 +167,7 @@ class ShoppingController extends GetxController {
       inprogressShopingList.refresh();
       return;
     }
+
     //* Remot data
     var result = await apiResponse.getShopList({"isCompleted": ""});
 
@@ -300,10 +309,15 @@ class ShoppingController extends GetxController {
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
 
     if (appNetworkState == AppNetworkState.superbase) {
-      await supabase
-          .from('shop_list_item')
-          .update({"state": state! ? 'completed' : 'not-completed'})
-          .eq("shopListItemsId", value?.shopListItemsId ?? "");
+      try {
+        await supabase
+            .from('shop_list_item')
+            .update({"state": state! ? 'completed' : 'not-completed'})
+            .eq("shopListItemsId", value?.shopListItemsId ?? "");
+      } catch (e) {
+        print(e);
+      }
+
       return;
     }
 
@@ -472,7 +486,6 @@ class ShoppingController extends GetxController {
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
     if (appNetworkState == AppNetworkState.offline) {
       //* Load Local data from local database
-      // var data = await _databaseService.getSharedUserList();
       // sharedUserList.value = data;
       // sharedUserList.refresh();
       return;
@@ -506,7 +519,9 @@ class ShoppingController extends GetxController {
     }
 
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
-    if (appNetworkState == AppNetworkState.offline) {
+
+    if (appNetworkState == AppNetworkState.offline ||
+        appNetworkState == AppNetworkState.superbase) {
       return;
     }
     var result = await apiResponse.getMySharedUserList();

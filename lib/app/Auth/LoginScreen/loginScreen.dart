@@ -72,18 +72,22 @@ class _LoginScreenState extends State<LoginScreen> {
           DialogHelper.showErrorDialog(description: authException.message);
           print("Error with Login: $e");
         }
-      } else {}
-    } else {
-      AuthDataSource apiResponse = AuthDataSource();
-      var parameter = {
-        "email": emailController.text,
-        "password": passwordController.text,
-      };
+      } else {
+        print('Login API');
+        AuthDataSource apiResponse = AuthDataSource();
+        var parameter = {
+          "email": emailController.text,
+          "password": passwordController.text,
+        };
 
-      var result = await apiResponse.userLogin(parameter);
-      if (result.status == LoadingStatus.success) {
-        box.write('token', result.data?.accessToken);
-        Get.off(MainHomeScreen());
+        var result = await apiResponse.userLogin(parameter);
+        print('Login API 2');
+        if (result.status == LoadingStatus.success) {
+          box.write('token', result.data?.accessToken);
+          Get.off(MainHomeScreen());
+        } else {
+          print('Login API 3');
+        }
       }
     }
   }
@@ -112,6 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
       emailController: emailController,
       passwordController: passwordController,
       changeRemember: changeRemember,
+      settingController: settingController,
       rememberMe: rememberMe,
       formKey: _formKey,
       createAccount: createAccount,

@@ -25,10 +25,13 @@ class ShopListItemListTitle extends StatelessWidget {
     return ListTile(
       leading: Icon(
         Icons.checklist_rounded,
-        color: isCompleted ? Colors.green : Colors.orange,
+        color:
+            shopListItem?.todo_state == "completed"
+                ? Colors.green
+                : Colors.orange,
       ),
       trailing:
-          shopListItem?.state == ""
+          shopListItem?.state == "not-completed"
               ? Icon(Icons.check_outlined, color: Colors.green)
               : null,
       onTap: () {

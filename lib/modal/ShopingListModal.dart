@@ -20,6 +20,7 @@ class MainShopListItem {
   String? shopListName;
   String? description;
   String? state;
+  String? todo_state;
   String? createdAt;
   String? updatedAt;
   String? userId;
@@ -34,6 +35,7 @@ class MainShopListItem {
     this.shopListName,
     this.description,
     this.state,
+    this.todo_state,
     this.createdAt,
     this.updatedAt,
     this.userId,
@@ -55,6 +57,7 @@ class MainShopListItem {
     shopListName = json['shopListName']?.toString();
     description = json['description']?.toString();
     state = json['state']?.toString();
+    todo_state = json['todo_state']?.toString();
     createdAt = json['createdAt']?.toString();
     updatedAt = json['updatedAt']?.toString();
     userId = json['userId']?.toString();
@@ -75,6 +78,9 @@ class MainShopListItem {
     }
     if (state != null) {
       data['state'] = state;
+    }
+    if (todo_state != null) {
+      data['todo_state'] = todo_state;
     }
     if (createdAt != null) {
       data['createdAt'] = createdAt;
@@ -115,6 +121,7 @@ class MainShopListItem {
       shopListName: map['title']?.toString(),
       description: map['description']?.toString(),
       state: map['state']?.toString(),
+      todo_state: map['todo_state']?.toString(),
       createdAt: map['createdAt']?.toString(),
       updatedAt: map['updatedAt']?.toString(),
       userId: map['userId']?.toString(),
