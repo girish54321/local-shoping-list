@@ -43,7 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
             child: SegmentedButton<AppNetworkState>(
               segments: const <ButtonSegment<AppNetworkState>>[
                 ButtonSegment<AppNetworkState>(

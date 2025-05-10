@@ -152,6 +152,7 @@ class LoginScreenUI extends StatelessWidget {
                                   () => Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0,
+                                      vertical: 8.0,
                                     ),
                                     child: SegmentedButton<AppNetworkState>(
                                       segments: const <
@@ -170,7 +171,9 @@ class LoginScreenUI extends StatelessWidget {
                                         ButtonSegment<AppNetworkState>(
                                           value: AppNetworkState.superbase,
                                           label: Text('Supabase'),
-                                          icon: Icon(Icons.calendar_view_month),
+                                          icon: Icon(
+                                            Icons.supervised_user_circle,
+                                          ),
                                         ),
                                       ],
                                       selected: <AppNetworkState>{

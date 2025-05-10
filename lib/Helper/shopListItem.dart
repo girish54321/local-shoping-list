@@ -46,7 +46,6 @@ class ShopListItemListTitle extends StatelessWidget {
             null,
             shopListItem?.superBaseId,
           );
-          print("superBaseId: ${shopListItem?.superBaseId}");
         }
         if (settingController.appNetworkState.value == AppNetworkState.api) {
           shopingListController.selecteShopListID(

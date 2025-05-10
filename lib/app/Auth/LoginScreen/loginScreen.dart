@@ -56,6 +56,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> loginUser() async {
     GetStorage box = GetStorage();
+    if (settingController.appNetworkState.value == AppNetworkState.offline) {
+      DialogHelper.showErrorDialog(description: "Can't login in offline mode");
+      return;
+    }
     if (_formKey.currentState!.validate()) {
       Helper().dismissKeyBoard(context);
 
@@ -70,10 +74,8 @@ class _LoginScreenState extends State<LoginScreen> {
         } catch (e) {
           AuthException authException = e as AuthException;
           DialogHelper.showErrorDialog(description: authException.message);
-          print("Error with Login: $e");
         }
       } else {
-        print('Login API');
         AuthDataSource apiResponse = AuthDataSource();
         var parameter = {
           "email": emailController.text,
@@ -81,12 +83,9 @@ class _LoginScreenState extends State<LoginScreen> {
         };
 
         var result = await apiResponse.userLogin(parameter);
-        print('Login API 2');
         if (result.status == LoadingStatus.success) {
           box.write('token', result.data?.accessToken);
           Get.off(MainHomeScreen());
-        } else {
-          print('Login API 3');
         }
       }
     }
