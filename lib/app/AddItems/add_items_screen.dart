@@ -90,7 +90,11 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                     AppBar(
                       title: FadeInRight(
                         duration: const Duration(milliseconds: 500),
-                        child: Text("Add Items"),
+                        child: Text(
+                          widget.shopListItem != null
+                              ? "Update items"
+                              : "Add Items",
+                        ),
                       ),
                     ),
                     Column(

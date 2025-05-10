@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/instance_manager.dart';
+import 'package:local_app/DataBase/shop-list-database.dart';
+import 'package:local_app/Helper/error_screen.dart';
+import 'package:local_app/Helper/loadingListView.dart';
 import 'package:local_app/Helper/no_dat_view.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
 import 'package:local_app/Helper/helper.dart';
-import 'package:local_app/app/AddShopingItem/AddShopingItemScreen.dart';
+import 'package:local_app/Helper/shopListItem.dart';
 import 'package:local_app/app/CreateShopingList/CreateShopingList.dart';
+import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ShopingList extends StatefulWidget {
   final List<MainShopListItem?>? shoppingList;
@@ -22,11 +27,12 @@ class ShopingList extends StatefulWidget {
 class _ShopingListState extends State<ShopingList> {
   final ShoppingController shopingListController = Get.find();
   final SettingController settingController = Get.find();
-
   //* Reload  List
   RefreshController refreshController = RefreshController(
     initialRefresh: false,
   );
+
+  final SupabaseClient supabase = DatabaseService.supabase;
 
   void startReload() {
     shopingListController.loadCompletedShopingList();
@@ -47,43 +53,57 @@ class _ShopingListState extends State<ShopingList> {
                 itemCount: widget.shoppingList?.length ?? 0,
                 itemBuilder: (context, index) {
                   MainShopListItem item = widget.shoppingList![index]!;
-                  return ListTile(
-                    leading: Icon(
-                      Icons.checklist_rounded,
-                      color: widget.isCompleted ? Colors.green : Colors.orange,
-                    ),
-                    trailing:
-                        item.isCompleted!
-                            ? Icon(Icons.check_outlined, color: Colors.green)
-                            : null,
-                    onTap: () {
-                      if (settingController.offlineMode.value) {
-                        shopingListController.selecteShopListID(item.id, null);
-                      } else {
-                        shopingListController.selecteShopListID(
-                          null,
-                          item.shopListId ?? "",
-                        );
-                      }
-                      Helper().goToPage(
-                        context: context,
-                        child: AddShopingItem(shoppingListModel: item),
-                      );
-                    },
-                    title: Text(item.shopListName ?? ""),
-                    subtitle: Text(item.description ?? ""),
+                  return ShopListItemListTitle(
+                    isCompleted: widget.isCompleted,
+                    shopListItem: item,
                   );
                 },
               ),
     );
   }
 
+  Widget superbaseList() {
+    final User? user = supabase.auth.currentUser;
+
+    return StreamBuilder(
+      stream: supabase
+          .from('shop_list')
+          .stream(primaryKey: ['id'])
+          .eq('user_id', user?.id ?? ''),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return LoadingListView();
+        }
+        if (snapshot.connectionState == ConnectionState.none) {
+          return ErrorView(errorMessage: "Someting wet worng");
+        }
+        ShopListModal shopListModal = ShopListModal.fromJson({
+          'shopList': snapshot.data,
+        });
+
+        return ListView.builder(
+          itemCount: shopListModal.shopList?.length,
+          itemBuilder: (context, index) {
+            MainShopListItem? item = shopListModal.shopList?[index];
+            return ShopListItemListTitle(
+              isCompleted: widget.isCompleted,
+              shopListItem: item,
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: listOfTasks(),
+      body:
+          settingController.appNetworkState.value == AppNetworkState.superbase
+              ? superbaseList()
+              : listOfTasks(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           Helper().goToPage(context: context, child: Createshopinglist());
         },
         child: Icon(Icons.add),

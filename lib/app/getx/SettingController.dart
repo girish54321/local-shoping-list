@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:local_app/Networking/unti/AppConst.dart';
+import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 
 class LocaleWidgetPair {
   Locale locale;
@@ -12,7 +13,9 @@ class LocaleWidgetPair {
 
 class SettingController extends GetxController {
   RxBool isDark = false.obs;
-  RxBool offlineMode = false.obs;
+  // RxBool offlineMode = false.obs;
+  Rx<AppNetworkState> appNetworkState = AppNetworkState.offline.obs;
+
   GetStorage box = GetStorage();
   @override
   void onReady() {
@@ -22,22 +25,28 @@ class SettingController extends GetxController {
   }
 
   void skipLogin() {
-    saveOfflineMode(true);
+    saveOfflineMode(AppNetworkState.offline);
   }
 
   void loadOfflineMode() {
     if (box.hasData(OFFLINE_MODE_KEY)) {
-      if (box.read(OFFLINE_MODE_KEY)) {
-        saveOfflineMode(true);
-      } else {
-        saveOfflineMode(false);
+      var offlineMode = box.read(OFFLINE_MODE_KEY);
+      if (offlineMode == AppNetworkState.offline.toString()) {
+        appNetworkState.value = AppNetworkState.offline;
+        Get.changeThemeMode(ThemeMode.dark);
+      } else if (offlineMode == AppNetworkState.api.toString()) {
+        appNetworkState.value = AppNetworkState.api;
+        Get.changeThemeMode(ThemeMode.light);
+      } else if (offlineMode == AppNetworkState.superbase.toString()) {
+        appNetworkState.value = AppNetworkState.superbase;
+        Get.changeThemeMode(ThemeMode.light);
       }
     }
   }
 
-  void saveOfflineMode(bool value) {
-    offlineMode.value = value;
-    box.write(OFFLINE_MODE_KEY, value);
+  void saveOfflineMode(AppNetworkState value) {
+    appNetworkState.value = value;
+    box.write(OFFLINE_MODE_KEY, value.toString());
   }
 
   //* Local Settings

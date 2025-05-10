@@ -3,6 +3,7 @@ class AddCommonItems {
   String description;
   String quantity;
   String price;
+  String? user_id;
 
   // Constructor
   AddCommonItems({
@@ -10,6 +11,7 @@ class AddCommonItems {
     required this.description,
     required this.quantity,
     required this.price,
+    this.user_id,
   });
 
   // Convert AddCommonItems object to JSON Map
@@ -19,6 +21,7 @@ class AddCommonItems {
       'description': description,
       'quantity': quantity,
       'price': price,
+      'user_id': user_id,
     };
   }
 
@@ -29,6 +32,7 @@ class AddCommonItems {
       description: json['description'] ?? '',
       quantity: json['quantity'] ?? '1',
       price: json['price'] ?? '1',
+      user_id: json['user_id'] ?? '',
     );
   }
 }

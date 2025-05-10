@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Helper/PullToLoadList.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
+import 'package:local_app/Networking/modal/error_modal.dart';
 import 'package:local_app/Networking/unti/result.dart';
+import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
+import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/modal/user_email_list_response.dart';
 import 'package:pull_to_refresh_new/pull_to_refresh.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class SelectedUser {
+  String? id;
+  String? email;
+
+  SelectedUser({this.id, this.email});
+}
 
 class ShareUserListScreen extends StatefulWidget {
   const ShareUserListScreen({super.key});
@@ -27,7 +39,13 @@ class _ShareUserListScreenState extends State<ShareUserListScreen> {
   LoadingState<List<UserEmailListResponseUsers?>?> users =
       LoadingState<List<UserEmailListResponseUsers?>?>.loading();
 
-  String? selectedUser;
+  final SettingController settingController = Get.find();
+  final supabase = SupabaseClient(
+    'https://tfymgnrlymhxollhewim.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmeW1nbnJseW1oeG9sbGhld2ltIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MjQwMTE2MSwiZXhwIjoyMDU3OTc3MTYxfQ.YWNnIxz9UDN7NpUfHbGIyDxknBdP7C6-VvhxsZ65Co0',
+  );
+
+  SelectedUser? selectedUser;
 
   Future<void> shareWithUser() async {
     final action = await Dialogs.yesAbortDialog(
@@ -44,12 +62,44 @@ class _ShareUserListScreenState extends State<ShareUserListScreen> {
     setState(() {
       users = LoadingState.loading();
     });
+    AppNetworkState appNetworkState = settingController.appNetworkState.value;
+    if (appNetworkState == AppNetworkState.offline ||
+        appNetworkState == AppNetworkState.superbase) {
+      try {
+        final List<User> users = await supabase.auth.admin.listUsers();
+        setState(() {
+          this.users = LoadingState.success(
+            users
+                .map(
+                  (e) => UserEmailListResponseUsers(
+                    email: e.userMetadata?['email'],
+                    userId: e.id,
+                  ),
+                )
+                .toList(),
+          );
+        });
+      } catch (e) {}
+
+      return;
+    }
     var result = await apiResponse.getUserEmailList({"search": text});
     if (result.status == LoadingStatus.success) {
       setState(() {
         users = LoadingState.success(result.data?.users);
       });
     }
+  }
+
+  void updateShareList() {
+    if (settingController.appNetworkState.value != AppNetworkState.superbase) {
+      return;
+    }
+    supabase.from('user-shop-lists').stream(primaryKey: ['id']).listen((
+      List<Map<String, dynamic>> data,
+    ) {
+      shopingListController.getSharedUserList();
+    });
   }
 
   @override
@@ -62,13 +112,32 @@ class _ShareUserListScreenState extends State<ShareUserListScreen> {
   void startReload() {
     shopingListController.getSharedUserList();
     refreshController.refreshCompleted();
+    getSharedUserList();
+  }
+
+  @override
+  void initState() {
+    startReload();
+    super.initState();
+  }
+
+  void getSharedUserList() {
+    if (settingController.appNetworkState.value != AppNetworkState.superbase) {
+      return;
+    }
+    supabase.from('user-shop-lists').stream(primaryKey: ['id']).listen((
+      List<Map<String, dynamic>> data,
+    ) {
+      shopingListController.getSharedUserList();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       var list = shopingListController.sharedUserList.value;
-      var isOwner = shopingListController.isOwner.value;
+      var isOwner = true;
+      // var isOwner = shopingListController.isOwner.value;
 
       var isLoading = list == LoadingStatus.loading;
 
@@ -108,6 +177,7 @@ class _ShareUserListScreenState extends State<ShareUserListScreen> {
                           suffixIcon: IconButton(
                             onPressed: () {
                               FocusScope.of(context).unfocus();
+                              userNameText?.text = "";
                             },
                             icon: Icon(Icons.close),
                           ),
@@ -156,14 +226,29 @@ class _ShareUserListScreenState extends State<ShareUserListScreen> {
 
                       return suggestions;
                     },
-                    onSelected: (suggestion) {
+                    onSelected: (suggestion) async {
                       var item =
                           users.data
                               ?.where((i) => i?.email == suggestion)
                               .toList();
                       var id = item?[0]?.userId;
+                      final SupabaseClient localSupabase =
+                          DatabaseService.supabase;
+                      final User? user = localSupabase.auth.currentUser;
+                      if (user?.id == id) {
+                        DialogHelper.showErrorDialog(
+                          error: ErrorModalError(
+                            message: 'You can\'t share with yourself',
+                          ),
+                          description: "You can't share with yourself",
+                        );
+                        return;
+                      }
                       setState(() {
-                        selectedUser = id;
+                        selectedUser = SelectedUser(
+                          id: id,
+                          email: item?[0]?.email,
+                        );
                       });
                       shareWithUser();
                     },
@@ -172,7 +257,8 @@ class _ShareUserListScreenState extends State<ShareUserListScreen> {
               }
               var item = list[index - 1]!;
               return ListTile(
-                title: Text(item.user?.firstName ?? ""),
+                leading: Icon(Icons.people_outline),
+                title: Text(item.user?.firstName ?? item.email ?? ""),
                 subtitle: Text(item.user?.email ?? ""),
               );
             },

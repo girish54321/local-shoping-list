@@ -3,12 +3,15 @@ import 'package:local_app/modal/ShopingListModal.dart';
 import 'package:local_app/modal/all_shop_list_items.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DatabaseService {
   static Database? _db;
   static final DatabaseService databaseService = DatabaseService._construct();
 
   DatabaseService._construct();
+
+  static final supabase = Supabase.instance.client;
 
   //* Get the database
   Future<Database> get database async {
