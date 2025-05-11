@@ -184,7 +184,7 @@ class _AddShopingItemState extends State<AddShopingItem>
 
   Widget openPopUpMenu(ShopListItems? item) {
     return PopupMenuButton<String>(
-      onSelected: (val) {
+      onSelected: (val) async {
         var isOwner = shopingListController.isOwner.value;
         var offline =
             settingController.appNetworkState.value == AppNetworkState.offline;
@@ -209,6 +209,23 @@ class _AddShopingItemState extends State<AddShopingItem>
           var inprogressList =
               shopingListController.inprogressShopingListItem.value;
           var allItems = [...?completedList.data, ...?inprogressList.data];
+          var isSuperbase =
+              settingController.appNetworkState.value ==
+              AppNetworkState.superbase;
+          if (isSuperbase) {
+            final data = await supabase
+                .from('shop_list_item')
+                .select()
+                .eq(
+                  'shopListId',
+                  shopingListController
+                      .selectedState
+                      .value
+                      .superBaseShopListID!,
+                );
+            allItems =
+                data.map((item) => ShopListItems.fromJson(item)).toList();
+          }
           Helper().goToPage(
             context: context,
             child: CloneShopList(

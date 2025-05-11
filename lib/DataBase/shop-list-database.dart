@@ -54,25 +54,34 @@ class DatabaseService {
 
   //* Add items to the Shoping list table
   Future<void> addItemToShopingList(ShopListItems item) async {
-    final db = await database;
-    await db.insert(shoppingListItemTable, {
-      shoppingListTable: item.id,
-      itemColumnName: item.itemName,
-      itemColumnQuantity: item.quantity,
-      itemColumnStatus: item.state,
-      itemColumnPrice: item.price,
-    });
+    try {
+      final db = await database;
+      await db.insert(shoppingListItemTable, {
+        shoppingListTable: item.id,
+        itemColumnName: item.itemName,
+        itemColumnQuantity: item.quantity,
+        itemColumnStatus: item.state,
+        itemColumnPrice: item.price,
+      });
+    } catch (e) {
+      print("Error adding item to shopping list: $e");
+    }
   }
 
   //* Create Shoping list
   Future<int> createShopingList(MainShopListItem item) async {
-    final db = await database;
-    var shopListID = await db.insert(shoppingListTable, {
-      shoppingListTitle: item.shopListName,
-      shoppingListDescription: item.description,
-      shoppingListStatus: 1,
-    });
-    return shopListID;
+    try {
+      final db = await database;
+      var shopListID = await db.insert(shoppingListTable, {
+        shoppingListTitle: item.shopListName,
+        shoppingListDescription: item.description,
+        shoppingListStatus: 1,
+      });
+      return shopListID;
+    } catch (e) {
+      print("Error creating shopping list: $e");
+      return 0;
+    }
   }
 
   //* Make Shoping list "item" checked
