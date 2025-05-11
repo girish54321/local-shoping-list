@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:local_app/DataBase/shop-list-database.dart';
+import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/ShopListDataSource/ShopListDataSource.dart';
 import 'package:local_app/Networking/modal/main_shop_list.dart';
@@ -309,15 +310,17 @@ class ShoppingController extends GetxController {
     AppNetworkState appNetworkState = settingController.appNetworkState.value;
 
     if (appNetworkState == AppNetworkState.superbase) {
+      DialogHelper.showLoading();
       try {
         await supabase
             .from('shop_list_item')
             .update({"state": state! ? 'completed' : 'not-completed'})
             .eq("shopListItemsId", value?.shopListItemsId ?? "");
+        DialogHelper.hideLoading();
       } catch (e) {
+        DialogHelper.showErrorDialog(description: "Error: $e", isError: true);
         print(e);
       }
-
       return;
     }
 
