@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:local_app/Helper/DialogHelper.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/AuthDataSource/AuthDataSource.dart';
 import 'package:local_app/Networking/unti/result.dart';
 import 'package:local_app/app/Auth/LoginScreen/loginScreenUI.dart';
 import 'package:local_app/app/Auth/SignUpScreen/SignUpScreen.dart';
+import 'package:local_app/app/SettingsScreen/SettingsScreen.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShoppingController.dart';
 import 'package:local_app/app/homeScreen/MainHomeScreen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
@@ -26,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final ShoppingController shoppingController = Get.find();
   final SettingController settingController = Get.find();
 
+  final supabase = Supabase.instance.client;
   bool validEmail = false, validPassword = false, rememberMe = true;
 
   void goBack(context) {
@@ -52,20 +56,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> loginUser() async {
     GetStorage box = GetStorage();
+    if (settingController.appNetworkState.value == AppNetworkState.offline) {
+      DialogHelper.showErrorDialog(description: "Can't login in offline mode");
+      return;
+    }
     if (_formKey.currentState!.validate()) {
       Helper().dismissKeyBoard(context);
-      AuthDataSource apiResponse = AuthDataSource();
-      var parameter = {
-        "email": emailController.text,
-        "password": passwordController.text,
-      };
 
-      var result = await apiResponse.userLogin(parameter);
-      if (result.status == LoadingStatus.success) {
-        box.write('token', result.data?.accessToken);
-        Get.off(MainHomeScreen());
+      if (settingController.appNetworkState.value ==
+          AppNetworkState.superbase) {
+        try {
+          await supabase.auth.signInWithPassword(
+            email: emailController.text,
+            password: passwordController.text,
+          );
+          Get.off(MainHomeScreen());
+        } catch (e) {
+          AuthException authException = e as AuthException;
+          DialogHelper.showErrorDialog(description: authException.message);
+        }
+      } else {
+        AuthDataSource apiResponse = AuthDataSource();
+        var parameter = {
+          "email": emailController.text,
+          "password": passwordController.text,
+        };
+
+        var result = await apiResponse.userLogin(parameter);
+        if (result.status == LoadingStatus.success) {
+          box.write('token', result.data?.accessToken);
+          Get.off(MainHomeScreen());
+        }
       }
-    } else {}
+    }
   }
 
   void skipLogin() {
@@ -92,6 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
       emailController: emailController,
       passwordController: passwordController,
       changeRemember: changeRemember,
+      settingController: settingController,
       rememberMe: rememberMe,
       formKey: _formKey,
       createAccount: createAccount,

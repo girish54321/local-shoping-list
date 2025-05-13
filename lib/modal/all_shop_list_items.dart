@@ -86,6 +86,7 @@ class SharedUserList {
   String? shopListId;
   String? createdAt;
   String? updatedAt;
+  String? email;
   AllShopListItemsSharedWithUser? user;
   //* New Obj
   MainShopListItem? shopListModal;
@@ -96,6 +97,7 @@ class SharedUserList {
     this.shopListId,
     this.createdAt,
     this.updatedAt,
+    this.email,
     this.user,
     this.shopListModal,
   });
@@ -103,6 +105,7 @@ class SharedUserList {
     id = json['id']?.toInt();
     userId = json['userId']?.toString();
     shopListId = json['shopListId']?.toString();
+    email = json['email']?.toString();
     createdAt = json['createdAt']?.toString();
     updatedAt = json['updatedAt']?.toString();
     user =
@@ -119,6 +122,7 @@ class SharedUserList {
     data['id'] = id;
     data['userId'] = userId;
     data['shopListId'] = shopListId;
+    data['email'] = email;
     data['createdAt'] = createdAt;
     data['updatedAt'] = updatedAt;
     if (user != null) {
@@ -151,11 +155,13 @@ class ShopListItems {
   String? createdAt;
   String? updatedAt;
   String? shopListId;
+  String? superBaseId;
   int? quantity;
   int? price;
   int? id;
   bool? isCompleted;
   bool? isNew;
+  String? user_id;
 
   ShopListItems({
     this.shopListItemsId,
@@ -169,7 +175,9 @@ class ShopListItems {
     this.quantity,
     this.id,
     this.isCompleted,
+    this.superBaseId,
     this.isNew,
+    this.user_id,
   });
   ShopListItems.fromJson(Map<String, dynamic> json) {
     shopListItemsId = json['shopListItemsId']?.toString();
@@ -179,6 +187,8 @@ class ShopListItems {
     createdAt = json['createdAt']?.toString();
     updatedAt = json['updatedAt']?.toString();
     shopListId = json['shopListId']?.toString();
+    superBaseId = json['superBaseId']?.toString();
+    user_id = json['user_id']?.toString();
     quantity = json['quantity']?.toInt();
     price = json['price']?.toInt();
     id = json['id']?.toInt();
@@ -187,18 +197,48 @@ class ShopListItems {
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
-    data['shopListItemsId'] = shopListItemsId;
-    data['itemName'] = itemName;
-    data['description'] = description;
-    data['state'] = state;
-    data['createdAt'] = createdAt;
-    data['updatedAt'] = updatedAt;
-    data['shopListId'] = shopListId;
-    data['quantity'] = quantity;
-    data['price'] = price;
-    data['id'] = id;
-    data['isCompleted'] = isCompleted;
-    data['isNew'] = isNew;
+    if (shopListItemsId != null) {
+      data['shopListItemsId'] = shopListItemsId;
+    }
+    if (itemName != null) {
+      data['itemName'] = itemName;
+    }
+    if (description != null) {
+      data['description'] = description;
+    }
+    if (state != null) {
+      data['state'] = state;
+    }
+    if (createdAt != null) {
+      data['createdAt'] = createdAt;
+    }
+    if (updatedAt != null) {
+      data['updatedAt'] = updatedAt;
+    }
+    if (shopListId != null) {
+      data['shopListId'] = shopListId;
+    }
+    if (superBaseId != null) {
+      data['shopListId'] = superBaseId;
+    }
+    if (user_id != null) {
+      data['user_id'] = user_id;
+    }
+    if (quantity != null) {
+      data['quantity'] = quantity;
+    }
+    if (price != null) {
+      data['price'] = price;
+    }
+    if (id != null) {
+      data['id'] = id;
+    }
+    if (isCompleted != null) {
+      data['isCompleted'] = isCompleted;
+    }
+    if (isNew != null) {
+      data['isNew'] = isNew;
+    }
     return data;
   }
 
@@ -216,6 +256,8 @@ class ShopListItems {
       createdAt: map['createdAt'] as String?,
       updatedAt: map['updatedAt'] as String?,
       shopListId: map['shopListId'] as String?,
+      user_id: map['user_id'] as String?,
+      superBaseId: map['superBaseId'] as String?,
       price: map['price'] as int?,
       quantity: map['quantity'] as int?,
       // isCompleted: isCompleted,

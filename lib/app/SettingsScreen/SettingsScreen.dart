@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:local_app/DataBase/shop-list-database.dart';
 import 'package:local_app/Helper/helper.dart';
 import 'package:local_app/Networking/unti/AppConst.dart';
 import 'package:local_app/app/Auth/LoginScreen/loginScreen.dart';
 import 'package:local_app/app/SavedItemsList/SavedItemsList.dart';
 import 'package:local_app/app/getx/SettingController.dart';
 import 'package:local_app/app/getx/ShoppingController.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+enum AppNetworkState { offline, api, superbase }
 
 class SettingsScreen extends StatefulWidget {
   SettingsScreen({Key? key}) : super(key: key);
@@ -21,9 +25,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   final ShoppingController shopingListController = GetInstance()
       .put<ShoppingController>(ShoppingController());
-  GetStorage box = GetStorage();
 
-  void logout() {
+  final SupabaseClient supabase = DatabaseService.supabase;
+
+  GetStorage box = GetStorage();
+  Future<void> logout() async {
+    if (settingController.appNetworkState.value == AppNetworkState.superbase) {
+      await supabase.auth.signOut();
+    }
     box.remove(JWT_KEY);
     Get.offAll(LoginScreen());
   }
@@ -33,18 +42,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Obx(() {
       return Column(
         children: [
-          ListTile(
-            leading: Icon(Icons.network_locked),
-            title: Text("Offline Mode"),
-            subtitle: Text("Use app Offline only"),
-            trailing: Obx(
-              (() => Switch(
-                value: settingController.offlineMode.value,
-                onChanged: (bool val) {
-                  settingController.saveOfflineMode(val);
-                  shopingListController.loadEverything();
-                },
-              )),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            child: SegmentedButton<AppNetworkState>(
+              segments: const <ButtonSegment<AppNetworkState>>[
+                ButtonSegment<AppNetworkState>(
+                  value: AppNetworkState.offline,
+                  label: Text('Offline'),
+                  icon: Icon(Icons.calendar_view_day),
+                ),
+                ButtonSegment<AppNetworkState>(
+                  value: AppNetworkState.api,
+                  label: Text('API'),
+                  icon: Icon(Icons.calendar_view_week),
+                ),
+                ButtonSegment<AppNetworkState>(
+                  value: AppNetworkState.superbase,
+                  label: Text('Supabase'),
+                  icon: Icon(Icons.calendar_view_month),
+                ),
+              ],
+              selected: <AppNetworkState>{
+                settingController.appNetworkState.value,
+              },
+              onSelectionChanged: (Set<AppNetworkState> newSelection) {
+                settingController.saveOfflineMode(newSelection.first);
+              },
             ),
           ),
           ListTile(
@@ -62,7 +85,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             onTap:
-                settingController.offlineMode.value == true
+                settingController.appNetworkState.value ==
+                        AppNetworkState.offline
                     ? null
                     : () {
                       Helper().goToPage(
@@ -73,11 +97,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: Icon(Icons.checklist_outlined),
             title: Text("Saved Items"),
             subtitle:
-                !settingController.offlineMode.value
+                !(settingController.appNetworkState.value ==
+                        AppNetworkState.offline)
                     ? Text("Access to your Coman Items")
                     : Text("Not available in offline mode"),
             trailing:
-                settingController.offlineMode.value
+                settingController.appNetworkState.value ==
+                        AppNetworkState.offline
                     ? Icon(Icons.no_accounts)
                     : Icon(Icons.check),
           ),
